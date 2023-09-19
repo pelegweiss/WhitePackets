@@ -1,4 +1,0 @@
-﻿  GUI.cpp
-C:\WhitePackets\GUI\GUI.cpp(48,16): warning C4101: 'controlIDS': unreferenced local variable
-C:\WhitePackets\GUI\GUI.cpp(44): warning C4715: 'windowProcedure': not all control paths return a value
-  GUI.vcxproj -> C:\WhitePackets\GUI\Debug\GUI.exe
