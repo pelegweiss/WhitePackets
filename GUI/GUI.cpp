@@ -12,7 +12,7 @@ int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmd
     {
         return -1;
     }
-    parentHWND = CreateWindowW(L"ParentWindowClass", L"White Packets", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, height, width, NULL, NULL, NULL, NULL);
+    parentHWND = CreateWindowW(L"ParentWindowClass", L"White Packets", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, width, height, NULL, NULL, NULL, NULL);
     MSG msg = { 0 };
 
     while (GetMessage(&msg, NULL, NULL, NULL))
@@ -47,20 +47,31 @@ void addControls(HWND parentHWND)
 {
     controlIDs controlIDS;
     lvPackets = new ListView(parentHWND, 0, 0, 600, 400, lvPacketID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA, LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES | LVS_EX_AUTOSIZECOLUMNS);
-    lvPackets->add_column(120, L"Caller");
-    lvPackets->add_column(120, L"Type");
-    lvPackets->add_column(120, L"header");
+    lvPackets->add_column(160, L"Caller");
+    lvPackets->add_column(160, L"Type");
+    lvPackets->add_column(160, L"header");
     lvPackets->add_column(1500, L"Data");
     lvPackets->showLV();
 
-    sniffPackets = new Control(parentHWND, 0, 410, 50, 25, sniffPacketsID, L"Button", L"Start");
-    clearLVPackets = new Control(parentHWND, 55, 410, 50, 25, clearLVPacketsID, L"Button", L"Clear");
-    packetTextBox = new Control(parentHWND, 105, 405, 450, 35, packetTextBoxID, L"Edit", L"", WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_VSCROLL);
-    lvFilters = new ListView(parentHWND, 600, 0, 175, 200,lvFiltersID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA, LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES | LVS_EX_AUTOSIZECOLUMNS);
-    lvFilters->add_column(100, L"Type");
-    lvFilters->add_column(100, L"header");
-    lvFilters->showLV();
+    packetTextBox = new Control(parentHWND, 0, 405, 500, 35, packetTextBoxID, L"Edit", L"", WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_VSCROLL);
 
+    sendPacket = new Control(parentHWND, 500, 405, 50, 35, sendPacketID, L"button", L"Send");
+    recvPacket = new Control(parentHWND, 550, 405, 50, 35, recvPacketID, L"button", L"Recv");
+
+    sniffPackets = new Control(parentHWND, 0, 450, 50, 25, sniffPacketsID, L"Button", L"Start");
+    clearLVPackets = new Control(parentHWND, 55, 450, 50, 25, clearLVPacketsID, L"Button", L"Clear");
+
+    CreateWindow(L"static", L"Auto scroll is: ", WS_VISIBLE | WS_CHILD, 110, 455, 90, 25, parentHWND, NULL, NULL, NULL);
+    autoScroll = new Control(parentHWND, 205,450, 25, 25, autoScrollID, L"Button", L"ON");
+
+    lvFilters = new ListView(parentHWND, 600, 0, 204, 200,lvFiltersID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA, LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES | LVS_EX_AUTOSIZECOLUMNS);
+    lvFilters->add_column(102, L"Type");
+    lvFilters->add_column(102, L"header");
+    lvFilters->showLV();
+    CreateWindow(L"static", L"Header:", WS_VISIBLE | WS_CHILD, 600, 205, 50, 25, parentHWND, NULL, NULL, NULL);
+    filterTextBox = new Control(parentHWND, 655, 205, 50, 20, filterTextBoxID, L"edit", L"");
+    filterHeader = new Control(parentHWND, 705, 205, 50, 20, filterHeaderID,L"button", L"Filter");
+    blockHeader = new Control(parentHWND, 755, 205, 50, 20, filterHeaderID, L"button", L"Block");
 
 }
 void addMenus(HWND parenthWnd)

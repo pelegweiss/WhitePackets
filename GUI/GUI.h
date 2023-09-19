@@ -4,8 +4,8 @@
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-const int width = 600;
-const int height = 800;
+const int height = 550;
+const int width = 825;
 HMENU hFileMenu;
 HWND parentHWND;
 LRESULT CALLBACK windowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
@@ -16,7 +16,13 @@ ListView* lvFilters;
 Control* sniffPackets;
 Control* clearLVPackets;
 Control* packetTextBox;
+Control* sendPacket;
+Control* recvPacket;
+Control* autoScroll;
+Control* filterTextBox;
+Control* filterHeader;
+Control* blockHeader;
 enum controlIDs
 {
-	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID
+	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID
 };
