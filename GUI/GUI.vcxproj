@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="controls.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="pipe.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

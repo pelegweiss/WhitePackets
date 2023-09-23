@@ -1,6 +1,13 @@
 #include "gui.h"
 int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
 {
+    FILE* pFile = nullptr;
+
+
+    //Include these after process attach switch has been triggered.
+    AllocConsole();
+    freopen_s(&pFile, "CONOUT$", "w", stdout);
+    std::thread thread_obj(pipeHandler);
     WNDCLASSW wc = { 0 };
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -81,4 +88,20 @@ void addMenus(HWND parenthWnd)
     AppendMenu(hFileMenu, MF_STRING, 2, L"Load");
     SetMenu(parenthWnd, hFileMenu);
 
+}
+
+
+void pipeHandler()
+{
+    using namespace std::literals::chrono_literals;
+    clientPipe pipe(L"whitePackets");
+    while (!pipe.connectPipe())
+    {
+        std::cout << "Failed to connect pipe, retrying" << std::endl;
+        std::this_thread::sleep_for(1s);
+    }
+    while (true)
+    {
+        pipe.readMessage();
+    }
 }

@@ -16,6 +16,9 @@
     <Filter Include="controls">
       <UniqueIdentifier>{7f3696d6-716b-4792-a0d9-743c2b64267a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{6d20e14d-2993-449c-a8bf-995b11c60a8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp">
@@ -28,6 +31,9 @@
     </ClInclude>
     <ClInclude Include="controls.h">
       <Filter>controls</Filter>
+    </ClInclude>
+    <ClInclude Include="pipe.h">
+      <Filter>pipe</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
