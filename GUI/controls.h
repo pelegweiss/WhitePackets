@@ -17,7 +17,7 @@ public:
 	{
 		return this->ControlID;
 	}
-	Control() {};
+	Control() { this->hWnd = NULL; this->ControlID = NULL; };
 	Control(HWND hwndParent, int x1, int y1, int x2, int y2, int id, LPCWSTR type,LPCWSTR Text)
 	{
 		this->hWnd = CreateWindowExW(0, type, Text, WS_VISIBLE | WS_CHILD , x1, y1,

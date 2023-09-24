@@ -8,6 +8,8 @@ int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmd
     AllocConsole();
     freopen_s(&pFile, "CONOUT$", "w", stdout);
     std::thread thread_obj(pipeHandler);
+    pipeToDLL.createPipe();
+    pipeToDLL.waitForClient();
     WNDCLASSW wc = { 0 };
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -33,6 +35,23 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
 {
     switch (msg)
     {
+        case WM_COMMAND:
+        {
+            switch (wp)
+            {
+                case sendPacketID:
+                {
+                    pipeMessage message;
+                    message.type = L"Packet";
+                    message.data = getTextFromBox(packetTextBox->Get_Hwnd(), true);
+                    pipeToDLL.sendMessage(message);
+                    break;
+                }
+            }
+            break;
+        }
+
+
         case WM_CREATE:
         {
             addMenus(parentHWND);
@@ -94,14 +113,55 @@ void addMenus(HWND parenthWnd)
 void pipeHandler()
 {
     using namespace std::literals::chrono_literals;
-    clientPipe pipe(L"whitePackets");
-    while (!pipe.connectPipe())
+    
+    while (!pipeToGui.connectPipe())
     {
         std::cout << "Failed to connect pipe, retrying" << std::endl;
         std::this_thread::sleep_for(1s);
     }
-    while (true)
+    pipeMessage message = pipeToGui.readMessage();
+    while (wcscmp(message.type.c_str(),L"Stop") != 0)
     {
-        pipe.readMessage();
+        messagesHandler(message);
+        pipeMessage message = pipeToGui.readMessage();
+    }
+    std::cout << "Connection ended, pipe is no longer exist" << std::endl;
+}
+
+wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces)
+{
+    wchar_t* packet_text = new wchar_t;
+    int len = GetWindowTextLengthA(boxHwnd);
+    GetWindowText(boxHwnd, packet_text, len + 1);
+    int count = 0;
+    //removing spaces
+    if (RemoveSpaces)
+    {
+        for (int i = 0; packet_text[i]; i++)
+        {
+            if (packet_text[i] != ' ')
+            {
+                packet_text[count++] = packet_text[i];
+            }
+        }
+        packet_text[count] = '\0';
+    }
+    return packet_text;
+}
+
+
+void messagesHandler(pipeMessage message)
+{
+    if (wcscmp(message.type.c_str(), L"send") == 0)
+    {
+        /*
+        std::vector<std::wstring> buffer;
+        buffer.emplace_back(L"000000");
+        buffer.emplace_back(message.type);
+        buffer.emplace_back(L"0000");
+        buffer.emplace_back((std::wstring)message.data);
+        lvPackets->add_item(buffer);
+        */
+        std::wcout << message.type << ", " << message.data << std::endl;
     }
 }
