@@ -3,11 +3,12 @@
 #include <windows.h>
 #include <vector>
 #include <thread>
-void pipeHandler();
+#include <map>
 
+void pipeHandler();
 struct pipeMessage
 {
-    std::wstring type;
+    int id;
     std::wstring data;
 };
 class Pipe
@@ -67,8 +68,10 @@ public:
         std::wcout << "Connected Pipe: " << this->pipeName << std::endl;
         return true;
     }
-    pipeMessage readMessage()
+    bool readMessage()
     {
+        return 0;
+        /*
         pipeMessage receivedMessage;
 
         DWORD bytesRead;
@@ -99,33 +102,32 @@ public:
         receivedMessage.data = nullptr;
 
         return receivedMessage;
+        */
+        return 0;
     }
     bool sendMessage(const pipeMessage& message)
     {
         DWORD bytesWritten;
 
-        // Serialize the message into a byte array
-        std::wstring serializedType = message.type;
-        DWORD typeSize = static_cast<DWORD>(serializedType.size() * sizeof(wchar_t));
+        // Serialize the message into a byte vector
+        std::vector<BYTE> serializedData;
 
-        // Calculate the total message size
-        DWORD totalSize = sizeof(DWORD) + typeSize;
+        // Serialize the id
+        serializedData.insert(serializedData.end(), reinterpret_cast<const BYTE*>(&message.id), reinterpret_cast<const BYTE*>(&message.id) + sizeof(int));
 
-        // Allocate memory for the serialized message
-        BYTE* serializedMessage = new BYTE[totalSize];
+        // Serialize the string length
+        int strLength = static_cast<int>(message.data.size());
+        serializedData.insert(serializedData.end(), reinterpret_cast<const BYTE*>(&strLength), reinterpret_cast<const BYTE*>(&strLength) + sizeof(int));
 
-        // Copy the type size and type data into the serialized message
-        memcpy(serializedMessage, &typeSize, sizeof(DWORD));
-        memcpy(serializedMessage + sizeof(DWORD), serializedType.c_str(), typeSize);
+        // Serialize the string data
+        serializedData.insert(serializedData.end(), message.data.begin(), message.data.end());
 
         // Send the serialized message over the pipe
-        if (!WriteFile(this->hNamedPipe, serializedMessage, totalSize, &bytesWritten, NULL))
+        if (!WriteFile(this->hNamedPipe, serializedData.data(), static_cast<DWORD>(serializedData.size()), &bytesWritten, NULL))
         {
-            delete[] serializedMessage;
             return false;
         }
 
-        delete[] serializedMessage;
         return true;
     }
 
@@ -134,6 +136,11 @@ public:
 
 int main()
 {
+    std::map<std::string, int> map;
+    map["error"] = 0;
+    map["stop"] = 1;
+    map["send"] = 2;
+    map["receive"] = 4;    
     std::thread thread_obj(pipeHandler);
     Pipe pipeToGui(L"pipeToGui");
     pipeToGui.createPipe();
@@ -141,8 +148,10 @@ int main()
     while (true)
     {
         pipeMessage message;
+        std::string type;
         std::cout << "Enter a messages type: ";
-        std::wcin >> message.type;
+        std::cin >> type;
+        message.id = map[type];
         std::cout << "Enter a messages data: ";
         std::wcin >> message.data;
         pipeToGui.sendMessage(message);
@@ -162,7 +171,7 @@ void pipeHandler()
     while (true)
     {
         pipeMessage message;
-        message = pipeToDLL.readMessage();
+        //message = pipeToDLL.readMessage();
     }
     std::cout << "Connection ended, pipe is no longer exist" << std::endl;
 }
