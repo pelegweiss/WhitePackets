@@ -42,7 +42,7 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                 case sendPacketID:
                 {
                     pipeMessage message;
-                    message.type = L"Packet";
+                    //message.type = L"Packet";
                     message.data = getTextFromBox(packetTextBox->Get_Hwnd(), true);
                     pipeToDLL.sendMessage(message);
                     break;
@@ -120,10 +120,11 @@ void pipeHandler()
         std::this_thread::sleep_for(1s);
     }
     pipeMessage message = pipeToGui.readMessage();
-    while (wcscmp(message.type.c_str(),L"Stop") != 0)
+    while (message.id != 1)
     {
-        messagesHandler(message);
-        pipeMessage message = pipeToGui.readMessage();
+        std::wcout << "Message ID: " << message.id << " Message Data" << " \42" << message.data  << "\42" << std::endl;
+        message = pipeToGui.readMessage();
+
     }
     std::cout << "Connection ended, pipe is no longer exist" << std::endl;
 }
@@ -152,16 +153,26 @@ wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces)
 
 void messagesHandler(pipeMessage message)
 {
-    if (wcscmp(message.type.c_str(), L"send") == 0)
+    switch (message.id)
     {
-        /*
-        std::vector<std::wstring> buffer;
-        buffer.emplace_back(L"000000");
-        buffer.emplace_back(message.type);
-        buffer.emplace_back(L"0000");
-        buffer.emplace_back((std::wstring)message.data);
-        lvPackets->add_item(buffer);
-        */
-        std::wcout << message.type << ", " << message.data << std::endl;
-    }
+        case 0:
+        {
+            
+        }
+        break;
+        case 1:
+        {
+
+        }
+        break;
+        case 2:
+        {
+        }
+        break;
+        case 3:
+        {
+
+        }
+        break;
+   }
 }

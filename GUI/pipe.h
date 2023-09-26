@@ -1,10 +1,11 @@
 #pragma once
 #include <Windows.h>
 #include <iostream>
+#include <codecvt>
 
 struct pipeMessage
 {
-    std::wstring type;
+    int id;           // ID field
     std::wstring data;
 };
 class Pipe
@@ -69,59 +70,60 @@ public:
         pipeMessage receivedMessage;
 
         DWORD bytesRead;
-        DWORD typeSize;
 
-        // Read the size of the type field
-        if (!ReadFile(this->hNamedPipe, &typeSize, sizeof(DWORD), &bytesRead, NULL))
+        int messageID;
+        int dataLen;
+
+        if (!ReadFile(this->hNamedPipe, &messageID, sizeof(int), &bytesRead, NULL))
         {
-            std::cerr << "Failed to read type size from input named pipe." << std::endl;
-            receivedMessage.type = L"Error";
+            receivedMessage.id = -1; // Indicate an error
             return receivedMessage;
         }
-
-        // Allocate memory for the type field and read it
-        wchar_t* typeBuffer = new wchar_t[typeSize / sizeof(wchar_t)];
-        if (!ReadFile(this->hNamedPipe, typeBuffer, typeSize, &bytesRead, NULL))
+        SetFilePointer(this->hNamedPipe, 4, NULL, FILE_CURRENT);
+        
+        if (!ReadFile(this->hNamedPipe, &dataLen, sizeof(int), &bytesRead, NULL))
         {
-            std::cerr << "Failed to read type from input named pipe." << std::endl;
-            delete[] typeBuffer;
-            receivedMessage.type = L"Error";
+            receivedMessage.id = -1; // Indicate an error
             return receivedMessage;
         }
+        SetFilePointer(this->hNamedPipe, dataLen, NULL, FILE_CURRENT);
 
-        receivedMessage.type = std::wstring(typeBuffer, typeSize / sizeof(wchar_t));
-        delete[] typeBuffer;
+        std::vector<char> buffer(dataLen);
+        // Read the string data from the pipe into the buffer
+        if (!ReadFile(this->hNamedPipe, buffer.data(), dataLen, &bytesRead, NULL))
+        {
+            receivedMessage.id = -1; // Indicate an error
+            return receivedMessage;
+        }
+        receivedMessage.id = messageID;
+        std::wstring wideData = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(std::string(buffer.data(), dataLen));
 
-        // Initialize the data pointer as NULL
-
+        receivedMessage.data = wideData;
         return receivedMessage;
     }
     bool sendMessage(const pipeMessage& message)
     {
         DWORD bytesWritten;
 
-        // Serialize the message into a byte array
-        std::wstring serializedType = message.type;
-        DWORD typeSize = static_cast<DWORD>(serializedType.size() * sizeof(wchar_t));
+        // Serialize the message into a byte vector
+        std::vector<BYTE> serializedData;
 
-        // Calculate the total message size
-        DWORD totalSize = sizeof(DWORD) + typeSize;
+        // Serialize the id
+        serializedData.insert(serializedData.end(), reinterpret_cast<const BYTE*>(&message.id), reinterpret_cast<const BYTE*>(&message.id) + sizeof(int));
 
-        // Allocate memory for the serialized message
-        BYTE* serializedMessage = new BYTE[totalSize];
+        // Serialize the string length
+        int strLength = static_cast<int>(message.data.size());
+        serializedData.insert(serializedData.end(), reinterpret_cast<const BYTE*>(&strLength), reinterpret_cast<const BYTE*>(&strLength) + sizeof(int));
 
-        // Copy the type size and type data into the serialized message
-        memcpy(serializedMessage, &typeSize, sizeof(DWORD));
-        memcpy(serializedMessage + sizeof(DWORD), serializedType.c_str(), typeSize);
+        // Serialize the string data
+        serializedData.insert(serializedData.end(), message.data.begin(), message.data.end());
 
         // Send the serialized message over the pipe
-        if (!WriteFile(this->hNamedPipe, serializedMessage, totalSize, &bytesWritten, NULL))
+        if (!WriteFile(this->hNamedPipe, serializedData.data(), static_cast<DWORD>(serializedData.size()), &bytesWritten, NULL))
         {
-            delete[] serializedMessage;
             return false;
         }
 
-        delete[] serializedMessage;
         return true;
     }
 

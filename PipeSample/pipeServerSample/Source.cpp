@@ -4,6 +4,7 @@
 #include <vector>
 #include <thread>
 #include <map>
+#include <codecvt>
 
 void pipeHandler();
 struct pipeMessage
@@ -68,42 +69,41 @@ public:
         std::wcout << "Connected Pipe: " << this->pipeName << std::endl;
         return true;
     }
-    bool readMessage()
+    pipeMessage readMessage()
     {
-        return 0;
-        /*
         pipeMessage receivedMessage;
 
         DWORD bytesRead;
-        DWORD typeSize;
 
-        // Read the size of the type field
-        if (!ReadFile(this->hNamedPipe, &typeSize, sizeof(DWORD), &bytesRead, NULL))
+        int messageID;
+        int dataLen;
+
+        if (!ReadFile(this->hNamedPipe, &messageID, sizeof(int), &bytesRead, NULL))
         {
-            std::cerr << "Failed to read type size from input named pipe." << std::endl;
-            receivedMessage.type = L"Error";
+            receivedMessage.id = -1; // Indicate an error
             return receivedMessage;
         }
+        SetFilePointer(this->hNamedPipe, 4, NULL, FILE_CURRENT);
 
-        // Allocate memory for the type field and read it
-        wchar_t* typeBuffer = new wchar_t[typeSize / sizeof(wchar_t)];
-        if (!ReadFile(this->hNamedPipe, typeBuffer, typeSize, &bytesRead, NULL))
+        if (!ReadFile(this->hNamedPipe, &dataLen, sizeof(int), &bytesRead, NULL))
         {
-            std::cerr << "Failed to read type from input named pipe." << std::endl;
-            delete[] typeBuffer;
-            receivedMessage.type = L"Error";
+            receivedMessage.id = -1; // Indicate an error
             return receivedMessage;
         }
+        SetFilePointer(this->hNamedPipe, dataLen, NULL, FILE_CURRENT);
 
-        receivedMessage.type = std::wstring(typeBuffer, typeSize / sizeof(wchar_t));
-        delete[] typeBuffer;
+        std::vector<char> buffer(dataLen);
+        // Read the string data from the pipe into the buffer
+        if (!ReadFile(this->hNamedPipe, buffer.data(), dataLen, &bytesRead, NULL))
+        {
+            receivedMessage.id = -1; // Indicate an error
+            return receivedMessage;
+        }
+        receivedMessage.id = messageID;
+        std::wstring wideData = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(std::string(buffer.data(), dataLen));
 
-        // Initialize the data pointer as NULL
-        receivedMessage.data = nullptr;
-
+        receivedMessage.data = wideData;
         return receivedMessage;
-        */
-        return 0;
     }
     bool sendMessage(const pipeMessage& message)
     {
@@ -140,7 +140,7 @@ int main()
     map["error"] = 0;
     map["stop"] = 1;
     map["send"] = 2;
-    map["receive"] = 4;    
+    map["receive"] = 3;    
     std::thread thread_obj(pipeHandler);
     Pipe pipeToGui(L"pipeToGui");
     pipeToGui.createPipe();
