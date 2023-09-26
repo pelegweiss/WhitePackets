@@ -35,6 +35,60 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
 {
     switch (msg)
     {
+        case WM_NOTIFY:
+        {
+            switch (((NMHDR*)lp)->code)
+            {
+            case LVN_GETDISPINFO:
+            {
+
+                NMLVDISPINFO* plvdi = (NMLVDISPINFO*)lp;
+                int row = plvdi->item.iItem;
+                int col = plvdi->item.iSubItem;
+                if (plvdi->item.mask & LVIF_TEXT)
+                {
+                    {
+                        if (wp == (WPARAM)lvPackets->get_ControlID())
+                        {
+                            plvdi->item.pszText = (LPWSTR)lvPackets->m_v[row][col].c_str();
+                        }
+                        else if (wp == (WPARAM)lvFilters->get_ControlID())
+                        {
+                            plvdi->item.pszText = (LPWSTR)lvFilters->m_v[row][col].c_str();
+                        }
+                    }
+                }
+                break;
+            }
+            case NM_CUSTOMDRAW: {
+                LPNMLVCUSTOMDRAW  lplvcd = (LPNMLVCUSTOMDRAW)lp;
+                switch (lplvcd->nmcd.dwDrawStage) {
+                case CDDS_PREPAINT:
+                    return CDRF_NOTIFYITEMDRAW;
+                    break;
+                case CDDS_ITEMPREPAINT:
+                    if (((int)lplvcd->nmcd.dwItemSpec % 2) == 0) {
+                        lplvcd->clrText = RGB(0, 0, 0);
+                        lplvcd->clrTextBk = RGB(245, 245, 245);
+                    }
+                    else {
+                        lplvcd->clrText = RGB(0, 0, 0);
+                        lplvcd->clrTextBk = RGB(255, 255, 255);
+                    }
+                    return CDRF_NEWFONT;
+                    break;
+                    //There would be some bits here for subitem drawing but they don't seem neccesary as you seem to want a full row color only
+                case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
+                    return CDRF_NEWFONT;
+                    break;
+                }
+                return TRUE;
+
+            }
+
+            }
+        }
+        break;
         case WM_COMMAND:
         {
             switch (wp)
@@ -48,21 +102,22 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                     break;
                 }
             }
-            break;
         }
+        break;
 
 
         case WM_CREATE:
         {
             addMenus(parentHWND);
             addControls(parentHWND);
-            break;
         }
+        break;
+
         case WM_DESTROY:
         {
             PostQuitMessage(0);
-            break;
         }
+        break;
         default:
             return DefWindowProc(parentHWND, msg, wp, lp);
     }
@@ -123,6 +178,7 @@ void pipeHandler()
     while (message.id != 1)
     {
         std::wcout << "Message ID: " << message.id << " Message Data" << " \42" << message.data  << "\42" << std::endl;
+        messagesHandler(message);
         message = pipeToGui.readMessage();
 
     }
