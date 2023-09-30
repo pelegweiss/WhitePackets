@@ -10,9 +10,11 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 const int height = 550;
 const int width = 825;
 HMENU hFileMenu;
-HWND parentHWND;
+HWND parentHWND,settingsHWND;
 LRESULT CALLBACK windowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
+LRESULT CALLBACK settingsProcedure(HWND, UINT, WPARAM, LPARAM);
 void addControls(HWND);
+void addSettingsControl(HWND);
 void addMenus(HWND);
 ListView* lvPackets;
 ListView* lvFilters;
@@ -25,14 +27,23 @@ Control* autoScroll;
 Control* filterTextBox;
 Control* filterHeader;
 Control* blockHeader;
+Control* maplestoryPathTextBox;
+Control* dllPathTextBox;
+Control* dllPathButton;
+Control* maplestoryPathButton;
+Control* launchButton;
 Pipe pipeToGui(L"pipeToGui");
 Pipe pipeToDLL(L"pipeToDLL");
+bool isSettingsOpen = false;
+std::wstring maplestoryPath = L"";
+std::wstring dllPath = L"";
 enum controlIDs
 {
-	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID
+	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID,settingsButton,maplestoryPathTextBoxID,dllPathTextBoxID,maplestoryPathButtonID,dllPathButtonID,launchButtonID
 };
 
 void pipeHandler();
 
 wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
 void messagesHandler(pipeMessage message);
+std::wstring open_file(HWND hWnd);
