@@ -19,10 +19,16 @@
     <Filter Include="pipe">
       <UniqueIdentifier>{6d20e14d-2993-449c-a8bf-995b11c60a8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="injector">
+      <UniqueIdentifier>{ce74c66a-ce7b-4c5f-ab68-ca4e07f2854c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="injector.cpp">
+      <Filter>injector</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="pipe.h">
       <Filter>pipe</Filter>
+    </ClInclude>
+    <ClInclude Include="injector.h">
+      <Filter>injector</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

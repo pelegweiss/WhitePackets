@@ -1,27 +1,4 @@
 #include "gui.h"
-std::string GetLastErrorAsString()
-{
-    //Get the error message ID, if any.
-    DWORD errorMessageID = ::GetLastError();
-    if (errorMessageID == 0) {
-        return std::string(); //No error message has been recorded
-    }
-
-    LPSTR messageBuffer = nullptr;
-
-    //Ask Win32 to give us the string version of that message ID.
-    //The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
-    size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
-    //Copy the error message into a std::string.
-    std::string message(messageBuffer, size);
-
-    //Free the Win32's string's buffer.
-    LocalFree(messageBuffer);
-
-    return message;
-}
 int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
 {
     FILE* pFile = nullptr;
@@ -30,9 +7,7 @@ int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmd
     //Include these after process attach switch has been triggered.
     AllocConsole();
     freopen_s(&pFile, "CONOUT$", "w", stdout);
-    //std::thread thread_obj(pipeHandler);
-    //pipeToDLL.createPipe();
-    //pipeToDLL.waitForClient();
+
     WNDCLASSW wc = { 0 };
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -87,7 +62,7 @@ LRESULT CALLBACK settingsProcedure(HWND settingsHWND, UINT msg, WPARAM wp, LPARA
                 {
                     std::wstring bufferPath = open_file(settingsHWND);
                     SetWindowText(dllPathTextBox->Get_Hwnd(), bufferPath.c_str());
-                    maplestoryPath = dllPath;
+                    dllPath = bufferPath;
                 }
                 break;
             }
@@ -184,21 +159,38 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                 case launchButtonID:
                 {
                     ShellExecute(nullptr, L"open", maplestoryPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+                    Sleep(3000);
                     int i = 0;
-                    HWND maplestoryHWND = FindWindowW(NULL, L"MapleStory");
-                    while (maplestoryHWND == NULL && i < 10)
+                    DWORD procID =  GetProcId(L"HeavenMS-localhost-WINDOW.exe");
+                    while (procID == NULL && i < 10)
                     {
-                        Sleep(1000);
+                        Sleep(250);
                         i++;
-                        maplestoryHWND = FindWindowW(NULL, L"MapleStory");
+                        procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
 
                     }
-                    if (i == 9)
+                    if (i == 10)
                     {
                         std::cout << "Failed to launch" << std::endl;
                         break;
                     }
-                    std::cout << "Maplestory launched sucssesfully" << std::endl;
+                    else
+                    {
+                        std::cout << "Maplestory launched sucssesfully going to inject" << std::endl;
+                        Sleep(1000);
+                        if (inject(L"HeavenMS-localhost-WINDOW.exe", dllPath.c_str()) == true)
+                        {
+                            std::thread thread_obj(pipeHandler);
+                            pipeToDLL.createPipe();
+                            pipeToDLL.waitForClient();
+                        }
+                        else
+                        {
+                            std::cout << "Failed injecting DLL" << std::endl;
+
+                        }
+                    }
+
                 }
                 break;
                 case settingsButton:
@@ -225,6 +217,8 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
 
         case WM_DESTROY:
         {
+            pipeMessage message{changeState,L""};
+            pipeToDLL.sendMessage(message);
             PostQuitMessage(0);
         }
         break;

@@ -39,6 +39,7 @@ public:
     }
     bool waitForClient()
     {
+        int i = 0;
         if (!ConnectNamedPipe(this->hNamedPipe, NULL)) {
             std::cerr << "Failed to connect to named pipe." << std::endl;
             CloseHandle(hNamedPipe);

@@ -4,6 +4,7 @@
 #include <thread>
 #include <iostream>
 #include "pipe.h"
+#include "injector.h"
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -47,3 +48,8 @@ void pipeHandler();
 wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
 void messagesHandler(pipeMessage message);
 std::wstring open_file(HWND hWnd);
+
+enum messagesIDS
+{
+	changeState,simulateSendPacket,simulateRecievePacket,getPacketData
+};
