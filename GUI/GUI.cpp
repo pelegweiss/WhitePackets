@@ -8,32 +8,9 @@ int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmd
     AllocConsole();
     freopen_s(&pFile, "CONOUT$", "w", stdout);
 
-    WNDCLASSW wc = { 0 };
-    wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hInstance = hInst;
-    wc.lpszClassName = L"ParentWindowClass";
-    wc.lpfnWndProc = windowProcedure;
-    if (!RegisterClassW(&wc))
-    {
-        return -1;
-    }
-
-    WNDCLASSW settingsWC = { 0 };
-    settingsWC.hbrBackground = (HBRUSH)COLOR_WINDOW;
-    settingsWC.hCursor = LoadCursor(NULL, IDC_ARROW);
-    settingsWC.hCursor = LoadCursor(NULL, IDC_ARROW);
-    settingsWC.hInstance = GetModuleHandleA(NULL);
-    settingsWC.lpszClassName = L"settingsWindowClass";
-    settingsWC.lpfnWndProc = settingsProcedure;
-    if (!RegisterClassW(&settingsWC))
-    {
-        return -1;
-    }
-
-    parentHWND = CreateWindowW(L"ParentWindowClass", L"White Packets", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 0, 0, width, height, NULL, NULL, NULL, NULL);
-
+    mainWindow = new Window(L"mainWndClass", windowProcedure,hInst);
+    settingsWindow = new Window(L"settingsWndClass", settingsProcedure, hInst);
+    mainWindow->createWindow(L"White Packets",0,0,width,height);
     MSG msg = { 0 };
 
     while (GetMessage(&msg, NULL, NULL, NULL))
@@ -78,7 +55,7 @@ LRESULT CALLBACK settingsProcedure(HWND settingsHWND, UINT msg, WPARAM wp, LPARA
         case WM_CLOSE:
         {
             DestroyWindow(settingsHWND);
-            isSettingsOpen = !isSettingsOpen;
+            settingsWindow->setState(!(settingsWindow->isCreated()));
         }
         break;
 
@@ -195,10 +172,10 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                 break;
                 case settingsButton:
                 {
-                    if (isSettingsOpen == false)
+                    if (settingsWindow->isCreated() == false)
                     {
-                        settingsHWND = CreateWindowW(L"settingsWindowClass", L"Settings", WS_OVERLAPPEDWINDOW | WS_VISIBLE , 150, 150, 425, 120, parentHWND, NULL, NULL, NULL);
-                        isSettingsOpen = !isSettingsOpen;
+                        settingsWindow->createWindow(L"SettingsWindowClass", 150, 150, 425, 120);
+                        //settingsHWND = CreateWindowW(L"settingsWindowClass", L"Settings", WS_OVERLAPPEDWINDOW | WS_VISIBLE , 150, 150, 425, 120, parentHWND, NULL, NULL, NULL);
                     }
 
                 }

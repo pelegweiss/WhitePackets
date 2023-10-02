@@ -1,4 +1,55 @@
 #include "controls.h"
+
+
+HWND Window::getHWND()
+{
+	return this->hWND;
+}
+Window::Window()
+{
+	this->hWND = NULL;
+	this->windowClass = L"";
+	this->windowTitle = L"";
+	this->isWindowCreated = false;
+}
+Window::Window(std::wstring className, WNDPROC procedure, HINSTANCE hInst)
+{
+	this->hWND = NULL;
+	this->windowClass = className;
+	this->isWindowCreated = false;
+	WNDCLASSW wc = { 0 };
+	wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hInstance = hInst;
+	wc.lpszClassName = className.c_str();
+	wc.lpfnWndProc = procedure;
+	if (!RegisterClassW(&wc))
+	{
+		std::cout << "Failed to register a window class" << std::endl;
+	}
+}
+bool Window::createWindow(std::wstring title, int x1, int y1, int x2, int y2)
+{
+	this->windowTitle = title;
+	this->hWND = CreateWindowW(this->windowClass.c_str(), title.c_str(), WS_OVERLAPPEDWINDOW | WS_VISIBLE, x1, y1, x2, y2, NULL, NULL, NULL, NULL);
+	if (this->hWND == NULL)
+	{
+		return false;
+	}
+	this->isWindowCreated = true;
+	return true;
+}
+bool Window::isCreated()
+{
+	return this->isWindowCreated;
+}
+void Window::setState(bool state)
+{
+	this->isWindowCreated = state;
+}
+
+
 HWND Control::Get_Hwnd()
 {
 	return this->hWnd;

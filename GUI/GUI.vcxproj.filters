@@ -27,6 +27,9 @@
     <ClCompile Include="injector.cpp">
       <Filter>injector</Filter>
     </ClCompile>
+    <ClCompile Include="controls.cpp">
+      <Filter>controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">

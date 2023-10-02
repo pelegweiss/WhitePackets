@@ -17,6 +17,8 @@ LRESULT CALLBACK settingsProcedure(HWND, UINT, WPARAM, LPARAM);
 void addControls(HWND);
 void addSettingsControl(HWND);
 void addMenus(HWND);
+Window* mainWindow;
+Window* settingsWindow;
 ListView* lvPackets;
 ListView* lvFilters;
 Control* sniffPackets;

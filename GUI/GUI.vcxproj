@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="controls.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="injector.cpp" />
   </ItemGroup>
