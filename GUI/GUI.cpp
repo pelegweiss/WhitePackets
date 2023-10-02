@@ -135,38 +135,20 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                 break;
                 case launchButtonID:
                 {
-                    ShellExecute(nullptr, L"open", maplestoryPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-                    Sleep(3000);
-                    int i = 0;
-                    DWORD procID =  GetProcId(L"HeavenMS-localhost-WINDOW.exe");
-                    while (procID == NULL && i < 10)
+                    const int maxRetries = 3;
+                    int retriesCounter = 0;
+                    while (retriesCounter < maxRetries)
                     {
-                        Sleep(250);
-                        i++;
-                        procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
-
-                    }
-                    if (i == 10)
-                    {
-                        std::cout << "Failed to launch" << std::endl;
-                        break;
-                    }
-                    else
-                    {
-                        std::cout << "Maplestory launched sucssesfully going to inject" << std::endl;
-                        Sleep(1000);
-                        if (inject(L"HeavenMS-localhost-WINDOW.exe", dllPath.c_str()) == true)
+                        if(runMaplestory(maplestoryPath, dllPath, pipeHandler, pipeToDLL) == false)
                         {
-                            std::thread thread_obj(pipeHandler);
-                            pipeToDLL.createPipe();
-                            pipeToDLL.waitForClient();
+                            retriesCounter++;
                         }
                         else
                         {
-                            std::cout << "Failed injecting DLL" << std::endl;
-
+                            break;
                         }
                     }
+                    
 
                 }
                 break;
@@ -175,7 +157,6 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                     if (settingsWindow->isCreated() == false)
                     {
                         settingsWindow->createWindow(L"SettingsWindowClass", 150, 150, 425, 120);
-                        //settingsHWND = CreateWindowW(L"settingsWindowClass", L"Settings", WS_OVERLAPPEDWINDOW | WS_VISIBLE , 150, 150, 425, 120, parentHWND, NULL, NULL, NULL);
                     }
 
                 }

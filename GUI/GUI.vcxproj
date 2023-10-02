@@ -141,11 +141,13 @@
   <ItemGroup>
     <ClCompile Include="controls.cpp" />
     <ClCompile Include="GUI.cpp" />
+    <ClCompile Include="guiFunctions.cpp" />
     <ClCompile Include="injector.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controls.h" />
     <ClInclude Include="GUI.h" />
+    <ClInclude Include="guiFunctions.h" />
     <ClInclude Include="injector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -19,6 +19,9 @@
     <Filter Include="injector">
       <UniqueIdentifier>{ce74c66a-ce7b-4c5f-ab68-ca4e07f2854c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="guiFunctions">
+      <UniqueIdentifier>{8516f33c-03a4-4686-8de7-2603eb59c417}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp">
@@ -30,6 +33,9 @@
     <ClCompile Include="controls.cpp">
       <Filter>controls</Filter>
     </ClCompile>
+    <ClCompile Include="guiFunctions.cpp">
+      <Filter>guiFunctions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -40,6 +46,9 @@
     </ClInclude>
     <ClInclude Include="injector.h">
       <Filter>injector</Filter>
+    </ClInclude>
+    <ClInclude Include="guiFunctions.h">
+      <Filter>guiFunctions</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
