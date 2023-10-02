@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <iostream>
 #include <codecvt>
-
+#include <vector>
 struct pipeMessage
 {
     int id;           // ID field
