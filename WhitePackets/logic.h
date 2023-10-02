@@ -7,7 +7,7 @@
 #include <thread>
 #include <map>
 #include <codecvt>
-#include "pipe.h"
+#include <Pipe/Pipe.h>
 void mainLogic();
 void pipeHandler();
 void messagesHandler(pipeMessage message);

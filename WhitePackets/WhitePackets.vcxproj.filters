@@ -16,9 +16,6 @@
     <Filter Include="logic">
       <UniqueIdentifier>{1364ad04-bf83-4f8d-a531-7f3ccfeb1188}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pipe">
-      <UniqueIdentifier>{8ec7843d-98c3-421e-84b5-9cb2155d9d68}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -29,9 +26,6 @@
     </ClInclude>
     <ClInclude Include="logic.h">
       <Filter>logic</Filter>
-    </ClInclude>
-    <ClInclude Include="pipe.h">
-      <Filter>pipe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
