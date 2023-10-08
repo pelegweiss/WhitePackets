@@ -51,7 +51,4 @@ wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
 void messagesHandler(pipeMessage message);
 std::wstring open_file(HWND hWnd);
 
-enum messagesIDS
-{
-	changeState,simulateSendPacket,simulateRecievePacket,getPacketData
-};
+

@@ -37,15 +37,16 @@ bool inject(const wchar_t* procName, const wchar_t* dllPath)
 
     if (hProc && hProc != INVALID_HANDLE_VALUE)
     {
-        void* loc = VirtualAllocEx(hProc, 0, MAX_PATH, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
-        DWORD result = WriteProcessMemory(hProc, loc, dllPath, wcslen(dllPath) + 1, 0);
+        void* loc = VirtualAllocEx(hProc, 0, (wcslen(dllPath) + 1) * sizeof(wchar_t), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+        DWORD result = WriteProcessMemory(hProc, loc, dllPath, (wcslen(dllPath) + 1) * sizeof(wchar_t), NULL);
         if (result == NULL)
         {
             return false;
         }
 
-        HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, loc, 0, 0);
+        HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, loc, 0, 0);
 
         if (hThread)
         {

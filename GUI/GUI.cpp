@@ -145,10 +145,11 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                         }
                         else
                         {
+                            std::cout << "Managed to launch and inject" << std::endl;
                             break;
                         }
                     }
-                    
+                    std::cout << "Failed to launch and injcet" << std::endl;
 
                 }
                 break;
@@ -175,8 +176,6 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
 
         case WM_DESTROY:
         {
-            pipeMessage message{changeState,L""};
-            pipeToDLL.sendMessage(message);
             PostQuitMessage(0);
         }
         break;
@@ -249,12 +248,11 @@ void pipeHandler()
         std::this_thread::sleep_for(1s);
     }
     pipeMessage message = pipeToGui.readMessage();
-    while (message.id != 1)
+    while (true)
     {
-        std::wcout << "Message ID: " << message.id << " Message Data" << " \42" << message.data  << "\42" << std::endl;
+
         messagesHandler(message);
         message = pipeToGui.readMessage();
-
     }
     std::cout << "Connection ended, pipe is no longer exist" << std::endl;
 }
@@ -287,7 +285,7 @@ void messagesHandler(pipeMessage message)
     {
         case 0:
         {
-            
+
         }
         break;
         case 1:
@@ -295,15 +293,7 @@ void messagesHandler(pipeMessage message)
 
         }
         break;
-        case 2:
-        {
-        }
-        break;
-        case 3:
-        {
 
-        }
-        break;
    }
 }
 
