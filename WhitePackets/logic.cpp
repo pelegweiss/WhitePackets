@@ -1,16 +1,31 @@
-#include "pch.h"
 #include "logic.h"
-bool shouldStop = false;
+#include "codecaves.h"
+bool isconnected = false;
+Pipe pipeToGui(L"pipeToGui");
+
+
 void mainLogic()
 {
-    std::thread thread_obj(pipeHandler);
-    Pipe pipeToGui(L"pipeToGui");
-    pipeToGui.createPipe();
-    pipeToGui.waitForClient();
-	while (shouldStop == false)
-	{
-		std::cout << "hello world" << std::endl;
-	}
+    while (true)
+    {
+        if (isconnected == false)
+        {
+            //std::thread thread_obj(pipeHandler);
+            pipeToGui.createPipe();
+            pipeToGui.waitForClient();
+            std::cout << "Connected" << std::endl;
+            isconnected = true;
+            setUpHooks();
+
+        }
+        else
+        {
+            
+            continue;
+        }
+    }
+    Sleep(1000);
+
 }
 void pipeHandler()
 {
@@ -31,12 +46,5 @@ void pipeHandler()
 
 void messagesHandler(pipeMessage message)
 {
-    switch (message.id)
-    {
-        case changeState:
-        {
-            shouldStop = !shouldStop;
-        }
-        break;
-    }
+
 }

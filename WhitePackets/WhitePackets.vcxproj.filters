@@ -16,6 +16,15 @@
     <Filter Include="logic">
       <UniqueIdentifier>{1364ad04-bf83-4f8d-a531-7f3ccfeb1188}</UniqueIdentifier>
     </Filter>
+    <Filter Include="internals">
+      <UniqueIdentifier>{352b106d-8b6f-4029-b32c-a20f8c07c982}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hook">
+      <UniqueIdentifier>{45bbc39a-1da4-4f61-bbc6-c0a284b81c6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{9562d3a0-3245-43df-911a-9191ed64d25a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -27,6 +36,21 @@
     <ClInclude Include="logic.h">
       <Filter>logic</Filter>
     </ClInclude>
+    <ClInclude Include="addresses.h">
+      <Filter>internals</Filter>
+    </ClInclude>
+    <ClInclude Include="hook.h">
+      <Filter>hook</Filter>
+    </ClInclude>
+    <ClInclude Include="codecaves.h">
+      <Filter>internals</Filter>
+    </ClInclude>
+    <ClInclude Include="structs.h">
+      <Filter>internals</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipe.h">
+      <Filter>pipe</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -37,6 +61,15 @@
     </ClCompile>
     <ClCompile Include="logic.cpp">
       <Filter>logic</Filter>
+    </ClCompile>
+    <ClCompile Include="hook.cpp">
+      <Filter>hook</Filter>
+    </ClCompile>
+    <ClCompile Include="codecaves.cpp">
+      <Filter>internals</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipe.cpp">
+      <Filter>pipe</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,15 +1,17 @@
-#include "pch.h"
-#include <iostream>
-#include <Windows.h>
 #include "logic.h"
 DWORD WINAPI HackThread(HMODULE hModule)
 {
-    //Create Console
+    // Create a console for the DLL.
     AllocConsole();
-    FILE* f;
-    freopen_s(&f, "CONOUT$", "w", stdout);
+    FILE* p;
+    freopen_s(&p, "CONOUT$", "w", stdout);
+    freopen_s(&p, "CONIN$", "r", stdin);
+
+
     mainLogic();
-    fclose(f);
+
+    // Clean up and close the console.
+    fclose(p);
     FreeConsole();
     FreeLibraryAndExitThread(hModule, 0);
     return 0;

@@ -4,10 +4,17 @@
 #include <iostream>
 #include <codecvt>
 #include <vector>
+struct Packet
+{
+    DWORD callerAddress;
+    WORD header;
+    std::vector<std::vector<BYTE>> data;
+
+};
 struct pipeMessage
 {
     int id;           // ID field
-    std::wstring data;
+    Packet data;
 };
 class Pipe
 {
