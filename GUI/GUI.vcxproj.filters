@@ -22,6 +22,9 @@
     <Filter Include="guiFunctions">
       <UniqueIdentifier>{8516f33c-03a4-4686-8de7-2603eb59c417}</UniqueIdentifier>
     </Filter>
+    <Filter Include="pipe">
+      <UniqueIdentifier>{5f5b0b88-6130-446a-96d3-1d44737a06cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp">
@@ -36,6 +39,9 @@
     <ClCompile Include="guiFunctions.cpp">
       <Filter>guiFunctions</Filter>
     </ClCompile>
+    <ClCompile Include="Pipe.cpp">
+      <Filter>pipe</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -49,6 +55,9 @@
     </ClInclude>
     <ClInclude Include="guiFunctions.h">
       <Filter>guiFunctions</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipe.h">
+      <Filter>pipe</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

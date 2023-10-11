@@ -127,29 +127,34 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
             {
                 case sendPacketID:
                 {
-                    pipeMessage message;
+                    //pipeMessage message;
                     //message.type = L"Packet";
-                    message.data = getTextFromBox(packetTextBox->Get_Hwnd(), true);
-                    pipeToDLL.sendMessage(message);
+                    //message.data = getTextFromBox(packetTextBox->Get_Hwnd(), true);
+                    //pipeToDLL.sendMessage(message);
                 }
                 break;
                 case launchButtonID:
                 {
                     const int maxRetries = 3;
                     int retriesCounter = 0;
+                    bool launched = false;
                     while (retriesCounter < maxRetries)
                     {
-                        if(runMaplestory(maplestoryPath, dllPath, pipeHandler, pipeToDLL) == false)
+                        if(runMaplestory(maplestoryPath, dllPath) == false)
                         {
                             retriesCounter++;
                         }
                         else
                         {
                             std::cout << "Managed to launch and inject" << std::endl;
-                            break;
+                            retriesCounter = 3;
+                            launched = true;
                         }
                     }
-                    std::cout << "Failed to launch and injcet" << std::endl;
+                    if (launched == false)
+                    {
+                        std::cout << "Failed to launch and injcet" << std::endl;
+                    }
 
                 }
                 break;
@@ -238,24 +243,7 @@ void addMenus(HWND parenthWnd)
 
 
 
-void pipeHandler()
-{
-    using namespace std::literals::chrono_literals;
-    
-    while (!pipeToGui.connectPipe())
-    {
-        std::cout << "Failed to connect pipe, retrying" << std::endl;
-        std::this_thread::sleep_for(1s);
-    }
-    pipeMessage message = pipeToGui.readMessage();
-    while (true)
-    {
 
-        messagesHandler(message);
-        message = pipeToGui.readMessage();
-    }
-    std::cout << "Connection ended, pipe is no longer exist" << std::endl;
-}
 
 wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces)
 {
@@ -279,23 +267,7 @@ wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces)
 }
 
 
-void messagesHandler(pipeMessage message)
-{
-    switch (message.id)
-    {
-        case 0:
-        {
 
-        }
-        break;
-        case 1:
-        {
-
-        }
-        break;
-
-   }
-}
 
 std::wstring open_file(HWND hWnd)
 {

@@ -5,6 +5,7 @@
 #include <iostream>
 #include "injector.h"
 #include "guiFunctions.h"
+#include <chrono>
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -35,7 +36,6 @@ Control* dllPathTextBox;
 Control* dllPathButton;
 Control* maplestoryPathButton;
 Control* launchButton;
-Pipe pipeToGui(L"pipeToGui");
 Pipe pipeToDLL(L"pipeToDLL");
 bool isSettingsOpen = false;
 std::wstring maplestoryPath = L"";
@@ -48,7 +48,6 @@ enum controlIDs
 void pipeHandler();
 
 wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
-void messagesHandler(pipeMessage message);
 std::wstring open_file(HWND hWnd);
 
 
