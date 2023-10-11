@@ -7,10 +7,7 @@
 void mainLogic();
 void pipeHandler();
 void messagesHandler(pipeMessage message);
-
 enum messagesIDS
 {
 	sendID, recieveID
 };
-
-

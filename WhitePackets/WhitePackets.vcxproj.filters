@@ -22,8 +22,8 @@
     <Filter Include="hook">
       <UniqueIdentifier>{45bbc39a-1da4-4f61-bbc6-c0a284b81c6b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pipe">
-      <UniqueIdentifier>{9562d3a0-3245-43df-911a-9191ed64d25a}</UniqueIdentifier>
+    <Filter Include="Pipe">
+      <UniqueIdentifier>{68c962b2-a68e-4f44-9cdb-3c60f9ba9acf}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -49,7 +49,7 @@
       <Filter>internals</Filter>
     </ClInclude>
     <ClInclude Include="Pipe.h">
-      <Filter>pipe</Filter>
+      <Filter>Pipe</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -69,7 +69,7 @@
       <Filter>internals</Filter>
     </ClCompile>
     <ClCompile Include="Pipe.cpp">
-      <Filter>pipe</Filter>
+      <Filter>Pipe</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

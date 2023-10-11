@@ -4,11 +4,13 @@
 #include "hook.h"
 #include "addresses.h"
 #include <vector>
-#include "Pipe/Pipe.h"
+
+//#include "Pipe/Pipe.h"
+#include "Pipe.h"
 extern Pipe pipeToGui;
 Packet * packet;
 
-void __fastcall hook_coutpacket(void* ecx, void* edx, short header, DWORD address)
+void __fastcall hook_coutpacket(void* ecx, void* edx, DWORD header, DWORD address)
 {
 	packet = new Packet;
 	packet->callerAddress = address;
@@ -18,32 +20,48 @@ void __fastcall hook_encode1(void* ecx, void* edx, unsigned char content)
 {
 	std::vector<BYTE> buffer;
 	buffer.insert(buffer.end(), reinterpret_cast<const BYTE*>(&content), reinterpret_cast<const BYTE*>(&content) + sizeof(unsigned char));
+	std::reverse(buffer.begin(), buffer.end());
 	packet->data.emplace_back(buffer);
 }
 void __fastcall hook_encode2(void* ecx, void* edx, unsigned short content)
 {
 	std::vector<BYTE> buffer;
 	buffer.insert(buffer.end(), reinterpret_cast<const BYTE*>(&content), reinterpret_cast<const BYTE*>(&content) + sizeof(unsigned short));
+	std::reverse(buffer.begin(), buffer.end());
 	packet->data.emplace_back(buffer);
 }
 void __fastcall hook_encode4(void* ecx, void* edx, unsigned long content)
 {
 	std::vector<BYTE> buffer;
 	buffer.insert(buffer.end(), reinterpret_cast<const BYTE*>(&content), reinterpret_cast<const BYTE*>(&content) + sizeof(unsigned long));
+	std::reverse(buffer.begin(), buffer.end());
 	packet->data.emplace_back(buffer);
 }
 void __fastcall hook_encodestr(void* ecx, void* edx, char * content)
 {
-	std::cout << content << std::endl;
+	WORD strLen = strlen(content);
 	std::vector<BYTE> buffer;
+	std::vector<BYTE> buffLen;
+	buffLen.insert(buffLen.end(), reinterpret_cast<const BYTE*>(&strLen), reinterpret_cast<const BYTE*>(&strLen) + sizeof(WORD));
+	std::reverse(buffLen.begin(), buffLen.end());
+
 	buffer.insert(buffer.end(), reinterpret_cast<const BYTE*>(content), reinterpret_cast<const BYTE*>(content) + strlen(content));
+
+	packet->data.emplace_back(buffLen);
 	packet->data.emplace_back(buffer);
 }
 void __fastcall hook_encodebuffer(void* ecx, void* edx, void * ptr, unsigned int len)
 {
-	std::vector<BYTE> buffer;
-	buffer.insert(buffer.end(), reinterpret_cast<const BYTE*>(ptr), reinterpret_cast<const BYTE*>(ptr) + len);
-	packet->data.emplace_back(buffer);
+	std::vector<BYTE> ptrBuffer;
+	std::vector<BYTE> lenBuffer;
+	WORD dataLen = len;
+	lenBuffer.insert(lenBuffer.end(), reinterpret_cast<const BYTE*>(&dataLen), reinterpret_cast<const BYTE*>(&dataLen) + sizeof(WORD));
+	std::reverse(lenBuffer.begin(), lenBuffer.end());
+
+	ptrBuffer.insert(ptrBuffer.end(), reinterpret_cast<const BYTE*>(ptr), reinterpret_cast<const BYTE*>(ptr) + len);
+
+	packet->data.emplace_back(lenBuffer);
+	packet->data.emplace_back(ptrBuffer);
 }
 
 void __fastcall hook_decode1(void* ecx, void* edx, DWORD address)

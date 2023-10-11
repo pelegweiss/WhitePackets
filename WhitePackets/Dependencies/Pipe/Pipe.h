@@ -1,13 +1,12 @@
 #pragma once
-#pragma once
 #include <Windows.h>
 #include <iostream>
 #include <codecvt>
 #include <vector>
 struct Packet
 {
-    DWORD callerAddress;
-    WORD header;
+    DWORD callerAddress{};
+    WORD header{};
     std::vector<std::vector<BYTE>> data;
 
 };
