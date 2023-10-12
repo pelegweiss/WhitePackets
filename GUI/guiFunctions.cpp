@@ -7,7 +7,7 @@ extern ListView* lvPackets;
 Pipe pipeToGui(L"pipeToGui");
 bool allBytesAreASCII(const std::vector<unsigned char>& bytes) {
     for (unsigned char byte : bytes) {
-        if (byte > 127) {
+        if (byte > 127 || byte < 32) {
             return false; // Byte is not in the ASCII range
         }
     }
@@ -32,10 +32,13 @@ void messagesHandler(pipeMessage message)
     break;
     case 1:
     {
+        if (!sniff)
+            break;
+
         std::wstringstream callerAddress;
         callerAddress << std::hex << std::uppercase << message.data.callerAddress;
         std::wstring hexStringCallerAddress = callerAddress.str();
-        std::wstring callerAddressFinal = L"0X" + hexStringCallerAddress;
+        std::wstring callerAddressFinal = L"0x" + hexStringCallerAddress;
 
         std::wstringstream header;
         header << std::setfill(L'0') << std::setw(4) << std::uppercase << message.data.header;
@@ -54,27 +57,20 @@ void messagesHandler(pipeMessage message)
 
             // Convert each byte to hexadecimal and store it in the wide string stream
             int elementSize = message.data.data.at(i).size();
-            bool isGreaterThan4Bytes = false;
-            if (elementSize > 4)
-            {
-                isGreaterThan4Bytes = true;
-            }
             for (size_t j = 0; j < elementSize; ++j) {
                 ss << std::hex << std::setw(2) << std::setfill(L'0') << std::uppercase << static_cast<int>(message.data.data[i].at(j));
             }
-            if (isGreaterThan4Bytes == true)
+
+            bool isAscii = allBytesAreASCII(message.data.data.at(i));
+            if (isAscii == true)
             {
-                bool isAscii = allBytesAreASCII(message.data.data.at(i));
-                if (isAscii == true)
-                {
-                    ss << L"\"[" << bytesToWString(message.data.data.at(i)) << L"\"]" << L' ';
-                }
+                ss << L"[\"" << bytesToWString(message.data.data.at(i)) << L"\"]" << L' ';
             }
             else
             {
                 ss << L' ';
-
             }
+
 
 
             // Get the resulting wstring
@@ -114,7 +110,7 @@ void pipeHandler()
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     pipeMessage message = pipeToGui.readMessage();
-    while (true)
+    while (message.id != -1)
     {
 
         messagesHandler(message);

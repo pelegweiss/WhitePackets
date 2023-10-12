@@ -40,6 +40,7 @@ Pipe pipeToDLL(L"pipeToDLL");
 bool isSettingsOpen = false;
 std::wstring maplestoryPath = L"";
 std::wstring dllPath = L"";
+bool sniff = false;
 enum controlIDs
 {
 	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID,settingsButton,maplestoryPathTextBoxID,dllPathTextBoxID,maplestoryPathButtonID,dllPathButtonID,launchButtonID

@@ -7,3 +7,4 @@
 #include "Pipe.h"
 bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath);
 
+extern bool sniff;

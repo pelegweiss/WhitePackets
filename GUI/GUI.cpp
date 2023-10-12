@@ -42,6 +42,8 @@ LRESULT CALLBACK settingsProcedure(HWND settingsHWND, UINT msg, WPARAM wp, LPARA
                     dllPath = bufferPath;
                 }
                 break;
+
+                break;
             }
             break;
         }
@@ -167,6 +169,31 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
 
                 }
                 break;
+                case autoScrollID:
+                {
+                    lvPackets->m_scroll = !lvPackets->m_scroll;
+                    if (lvPackets->m_scroll) { SendMessage(autoScroll->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"ON"); }
+                    else { SendMessage(autoScroll->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"OFF"); }
+                    break;
+                }
+                break;
+                case clearLVPacketsID:
+                {
+                    lvPackets->clear_items();
+                }
+                break;
+                case sniffPacketsID:
+                {
+                    sniff = !sniff;
+                    if (sniff)
+                    {
+                        SendMessage(sniffPackets->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"Pause");
+                    }
+                    else
+                    {
+                        SendMessage(sniffPackets->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"Start");
+                    }
+                }
             }
         }
         break;
