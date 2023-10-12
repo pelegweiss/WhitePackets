@@ -41,31 +41,25 @@ void __fastcall hook_encodestr(void* ecx, void* edx, char * content)
 	WORD strLen = strlen(content);
 	std::vector<BYTE> buffer;
 	std::vector<BYTE> buffLen;
+	buffLen.insert(buffLen.end(), reinterpret_cast<const BYTE*>(&strLen), reinterpret_cast<const BYTE*>(&strLen) + sizeof(WORD));
+	std::reverse(buffLen.begin(), buffLen.end());
+	packet->data.emplace_back(buffLen);
+
 	if (strLen != 0)
 	{
-		buffLen.insert(buffLen.end(), reinterpret_cast<const BYTE*>(&strLen), reinterpret_cast<const BYTE*>(&strLen) + sizeof(WORD));
-		std::reverse(buffLen.begin(), buffLen.end());
-
 		buffer.insert(buffer.end(), reinterpret_cast<const BYTE*>(content), reinterpret_cast<const BYTE*>(content) + strLen);
-
-		packet->data.emplace_back(buffLen);
 		packet->data.emplace_back(buffer);
 	}
-	else
-	{
-		for (int i = 0; i < 2; i++)
-		{
-			BYTE b = 0;
-			buffer.emplace_back();
-		}
-
-		packet->data.emplace_back(buffer);
-	}
-
-
-
 
 }
+
+
+	
+
+
+
+
+
 void __fastcall hook_encodebuffer(void* ecx, void* edx, void * ptr, unsigned int len)
 {
 	std::vector<BYTE> Buffer;
