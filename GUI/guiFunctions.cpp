@@ -6,14 +6,6 @@
 extern ListView* lvPackets;
 Pipe pipeToGui(L"pipeToGui");
 
-std::wstring bytesToWString(const std::vector<unsigned char>& bytes) {
-    std::wstring result;
-    for (unsigned char byte : bytes) {
-        result += static_cast<wchar_t>(byte);
-    }
-    return result;
-}
-
 void messagesHandler(pipeMessage message)
 {
     switch (message.id)
@@ -28,59 +20,22 @@ void messagesHandler(pipeMessage message)
             if (!sniff)
                 break;
 
-            std::wstringstream callerAddress;
-            callerAddress << std::hex << std::uppercase << message.data.callerAddress;
-            std::wstring hexStringCallerAddress = callerAddress.str();
-            std::wstring callerAddressFinal = L"0x" + hexStringCallerAddress;
+            // Convert caller address and header to byte vectors
+            std::vector<BYTE> callerAddressBytes = convertToBytes(message.data.callerAddress);
+            std::vector<BYTE> headerBytes = convertToBytes(message.data.header);
 
-            std::wstringstream header;
-            header << std::hex << std::setfill(L'0') << std::setw(4) << std::uppercase << message.data.header;
-            std::wstring hexStringHeader = header.str();
-
+            std::wstring callerAddressString = L"0x" + toHexString(callerAddressBytes);
+            std::wstring headerString = toHexString(headerBytes);
 
             std::vector<std::wstring> buf;
-            buf.emplace_back(callerAddressFinal);
+            buf.emplace_back(callerAddressString);
             buf.emplace_back(L"Send");
-            buf.emplace_back(hexStringHeader);
+            buf.emplace_back(headerString);
 
-
-            std::wstring data;
             message.data.segments.erase(message.data.segments.begin());
-            for (int i = 0; i < message.data.segments.size(); i++)
-            {
-                std::wstringstream ss;
-
-                // Convert each byte to hexadecimal and store it in the wide string stream
-                int elementSize = message.data.segments.at(i).bytes.size();
-                for (size_t j = 0; j < elementSize; ++j) 
-                {
-                    ss << std::hex << std::setw(2) << std::setfill(L'0') << std::uppercase << static_cast<int>(message.data.segments[i].bytes.at(j));
-                }
-
-
-
-
-                // Get the resulting wstring
-                std::wstring hexString = ss.str();
-                if (message.data.segments[i].type == encodeStr)
-                {
-                    hexString.insert(4, 1, L' ');
-                    std::vector<BYTE> bytesBuffer;
-                    bytesBuffer.assign(message.data.segments.at(i).bytes.begin() + 2, message.data.segments.at(i).bytes.end());
-                    hexString += L"[\"" + bytesToWString(bytesBuffer) + L"\"]";
-                }
-                data += hexString + L" ";
-            }
-            if (data.empty())
-            {
-                buf.emplace_back(L"");
-            }
-            else
-            {
-                data.erase(data.size() - 1);
-                buf.emplace_back(data);
-
-            }
+            std::wstring data;
+            data = segmentsToWstring(message.data.segments);
+            buf.emplace_back(data);
             lvPackets->add_item(buf);
 
     
@@ -88,6 +43,7 @@ void messagesHandler(pipeMessage message)
 
 
         }
+
     }
 }
 void pipeHandler()

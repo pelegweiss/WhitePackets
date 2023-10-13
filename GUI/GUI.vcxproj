@@ -142,6 +142,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="controls.cpp" />
+    <ClCompile Include="encoding.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="guiFunctions.cpp" />
     <ClCompile Include="injector.cpp" />
@@ -149,10 +150,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controls.h" />
+    <ClInclude Include="encoding.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="guiFunctions.h" />
     <ClInclude Include="injector.h" />
     <ClInclude Include="Pipe.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="encoding.tpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,11 +3,20 @@
 #include <iostream>
 #include <codecvt>
 #include <vector>
+enum encodingTypes
+{
+    encode1 = 1, encode2 = 2, encode4 = 4, encodeStr = 5, encodeBuffer = 6
+};
+struct Segment
+{
+    int type;
+    std::vector<BYTE> bytes;
+};
 struct Packet
 {
     DWORD callerAddress{};
     WORD header{};
-    std::vector<std::vector<BYTE>> data;
+    std::vector<Segment> segments;
 
 };
 struct pipeMessage

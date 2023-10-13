@@ -25,6 +25,9 @@
     <Filter Include="pipe">
       <UniqueIdentifier>{54c2104a-ce02-4c4a-b39e-40850d32e4b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="encoding">
+      <UniqueIdentifier>{b1900738-d48d-450a-9e00-208c45887df5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp">
@@ -41,6 +44,9 @@
     </ClCompile>
     <ClCompile Include="Pipe.cpp">
       <Filter>pipe</Filter>
+    </ClCompile>
+    <ClCompile Include="encoding.cpp">
+      <Filter>encoding</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,5 +65,13 @@
     <ClInclude Include="Pipe.h">
       <Filter>pipe</Filter>
     </ClInclude>
+    <ClInclude Include="encoding.h">
+      <Filter>encoding</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="encoding.tpp">
+      <Filter>encoding</Filter>
+    </None>
   </ItemGroup>
 </Project>
