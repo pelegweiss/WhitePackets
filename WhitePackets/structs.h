@@ -12,8 +12,8 @@ struct CInPacket
 {
     int m_bLoopBack;
     long m_State;
-    unsigned char* m_aRecvBuff;
-    unsigned short m_uLength;
+    BYTE * m_aRecvBuff;
+    unsigned short m_uLength; //length with shitty bytes
     unsigned short m_uRawSeq;
     unsigned short m_uDatalen;
     unsigned int m_ofOffset;
