@@ -5,7 +5,7 @@
 #include <vector>
 enum encodingTypes
 {
-    encode1 = 1, encode2 = 2, encode4 = 4, encodeStr = 5, encodeBuffer = 6
+    encode1 = 1, encode2 = 2, encode4 = 4, encodeStr = 5, encodeBuffer = 6, decode1 = 7, decode2 = 8, decode4 = 9, decodeStr = 10, decodeBuffer = 11
 };
 struct Segment
 {

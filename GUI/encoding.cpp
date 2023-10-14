@@ -25,7 +25,7 @@ std::wstring segmentsToWstring(const std::vector<Segment>& segments) {
     for (const Segment& segment : segments) {
         std::wstring hexString = toHexString(segment.bytes);
 
-        if (segment.type == encodeStr) {
+        if (segment.type == encodeStr || segment.type == decodeStr) {
             hexString.insert(4, 1, L' ');
             std::vector<BYTE> bytesBuffer(segment.bytes.begin() + 2, segment.bytes.end());
             hexString += L"[\"" + bytesToWString(bytesBuffer) + L"\"]";
