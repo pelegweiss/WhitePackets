@@ -96,33 +96,40 @@ void __fastcall hook_encodebuffer(void* ecx, void* edx, void * ptr, unsigned int
 
 
 
-void __fastcall hook_decode1(void* ecx, void* edx, DWORD address)
+void __fastcall hook_decode1(CInPacket* ecx, void* edx, DWORD address)
 {
-	std::vector<BYTE> buffer;
-	buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(unsigned char)));
-	std::reverse(buffer.begin(), buffer.end());
-	offSet += 1;
-	Segment seg;
-	seg.bytes = buffer;
-	seg.type = decode1;
-	packet->segments.emplace_back(seg);
-	if (offSet == packetDataLen - 1)
-	{
-		packet->callerAddress = address;
-		pipeMessage message;
-		message.id = 2;
-		message.data = *packet;
 
-		pipeToGui.sendMessage(message);
-		delete packet;
-		inPacket.clear();
-		offSet = 0;
+	if (!inPacket.empty() && ecx->m_State == 2)
+	{
+		std::vector<BYTE> buffer;
+		buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(unsigned char)));
+		std::reverse(buffer.begin(), buffer.end());
+		offSet += 1;
+		Segment seg;
+		seg.bytes = buffer;
+		seg.type = decode1;
+		packet->segments.emplace_back(seg);
+		if (offSet == packetDataLen - 1)
+		{
+			packet->callerAddress = address;
+			pipeMessage message;
+			message.id = 2;
+			message.data = *packet;
+
+			pipeToGui.sendMessage(message);
+			delete packet;
+			inPacket.clear();
+			offSet = 0;
+
+		}
 
 	}
+
 }
-void __fastcall hook_decode2(void* ecx, void* edx, DWORD address)
+void __fastcall hook_decode2(CInPacket* ecx, void* edx, DWORD address)
 {
-	if (!inPacket.empty())
+
+	if (!inPacket.empty() && ecx->m_State == 2)
 	{
 		std::vector<BYTE> buffer;
 		std::vector<BYTE> headerBuffer;
@@ -143,7 +150,8 @@ void __fastcall hook_decode2(void* ecx, void* edx, DWORD address)
 		seg.bytes = buffer;
 		seg.type = decode2;
 		packet->segments.emplace_back(seg);
-		if (offSet == packetDataLen -1)
+
+		if (offSet == packetDataLen - 1)
 		{
 			packet->callerAddress = address;
 			pipeMessage message;
@@ -155,92 +163,112 @@ void __fastcall hook_decode2(void* ecx, void* edx, DWORD address)
 			offSet = 0;
 
 		}
+
 	}
+
 
 
 }
-void __fastcall hook_decode4(void* ecx, void* edx, DWORD address)
+void __fastcall hook_decode4(CInPacket* ecx, void* edx, DWORD address)
 {
-	std::vector<BYTE> buffer;
-	buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(unsigned int)));
-	std::reverse(buffer.begin(), buffer.end());
-	offSet += 4;
-	Segment seg;
-	seg.bytes = buffer;
-	seg.type = decode4;
-	packet->segments.emplace_back(seg);
-	if (offSet == packetDataLen - 1)
+
+	if (!inPacket.empty() && ecx->m_State == 2)
 	{
-		packet->callerAddress = address;
-		pipeMessage message;
-		message.id = 2;
-		message.data = *packet;
+		std::vector<BYTE> buffer;
+		buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(unsigned int)));
+		std::reverse(buffer.begin(), buffer.end());
+		offSet += 4;
+		Segment seg;
+		seg.bytes = buffer;
+		seg.type = decode4;
+		packet->segments.emplace_back(seg);
+		if (offSet == packetDataLen - 1)
+		{
+			packet->callerAddress = address;
+			pipeMessage message;
+			message.id = 2;
+			message.data = *packet;
 
-		pipeToGui.sendMessage(message);
-		delete packet;
-		inPacket.clear();
-		offSet = 0;
+			pipeToGui.sendMessage(message);
+			delete packet;
+			inPacket.clear();
+			offSet = 0;
 
+		}
 	}
+
+
 
 }
-void __cdecl hook_decodestr(void* param_1,DWORD address, char* str_ptr, unsigned int param_3)
+void __cdecl hook_decodestr(DWORD address, void* param1, char* str_ptr, unsigned int param2, CInPacket* p)
 {
-	std::vector<BYTE> buffer;
-	std::vector<BYTE> bufferLen;
-	WORD dataLen{};
-	bufferLen.insert(bufferLen.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(WORD)));
-	buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(WORD)));
-	dataLen = bytesToWord(bufferLen);
-	std::reverse(buffer.begin(), buffer.end());
-	offSet += 2;
-	if (dataLen != 0)
+	if (!inPacket.empty() && p->m_State == 2)
 	{
-		buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + dataLen));
-	}
-	offSet += dataLen;
-	Segment seg;
-	seg.bytes = buffer;
-	seg.type = decodeStr;
-	packet->segments.emplace_back(seg);
-	if (offSet == packetDataLen -1)
-	{
-		packet->callerAddress = address;
-		pipeMessage message;
-		message.id = 2;
-		message.data = *packet;
+		std::vector<BYTE> buffer;
+		std::vector<BYTE> bufferLen;
+		WORD dataLen{};
+		bufferLen.insert(bufferLen.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(WORD)));
+		buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + sizeof(WORD)));
+		dataLen = bytesToWord(bufferLen);
+		std::reverse(buffer.begin(), buffer.end());
+		offSet += 2;
+		if (dataLen != 0)
+		{
+			buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + dataLen));
+		}
+		offSet += dataLen;
+		Segment seg;
+		seg.bytes = buffer;
+		seg.type = decodeStr;
+		packet->segments.emplace_back(seg);
+		if (offSet == packetDataLen - 1)
+		{
+			packet->callerAddress = address;
+			pipeMessage message;
+			message.id = 2;
+			message.data = *packet;
 
-		pipeToGui.sendMessage(message);
-		delete packet;
-		inPacket.clear();
-		offSet = 0;
+			pipeToGui.sendMessage(message);
+			delete packet;
+			inPacket.clear();
+			offSet = 0;
 
+		}
 	}
+
+
 }
 void __fastcall hook_decodebuffer(CInPacket* ecx, void* edx,DWORD address, void* ptr, unsigned int len)
 {
-	std::vector<BYTE> buffer;
 
-	buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + len));
-	offSet += len;
-	Segment seg;
-	seg.bytes = buffer;
-	seg.type = decodeBuffer;
-	packet->segments.emplace_back(seg);
-
-	if (offSet == packetDataLen -1)
+	if (!inPacket.empty() && ecx->m_State == 2)
 	{
-		packet->callerAddress = address;
-		pipeMessage message;
-		message.id = 2;
-		message.data = *packet;
+		std::vector<BYTE> buffer;
 
-		pipeToGui.sendMessage(message);
-		delete packet;
-		inPacket.clear();
-		offSet = 0;
+		buffer.insert(buffer.end(), &inPacket.at(offSet), &inPacket.at(offSet + len));
+		offSet += len;
+		Segment seg;
+		seg.bytes = buffer;
+		seg.type = decodeBuffer;
+		packet->segments.emplace_back(seg);
+
+		if (offSet == packetDataLen - 1)
+		{
+			packet->callerAddress = address;
+			pipeMessage message;
+			message.id = 2;
+			message.data = *packet;
+
+			pipeToGui.sendMessage(message);
+			delete packet;
+			inPacket.clear();
+			offSet = 0;
+
+		}
 
 	}
+
+
 }
 
 
@@ -256,11 +284,15 @@ void __fastcall sniff_send(void* ecx, void* edx,DWORD address, COutPacket* p)
 
 bool __fastcall sniff_recv(void* ecx, void* edx, DWORD address, CInPacket* p)
 {
-	packet = new Packet;
-	packetDataLen = p->m_uDatalen + 1;
-	inPacket.insert(inPacket.end(), p->m_aRecvBuff + 4, p->m_aRecvBuff + 4 + packetDataLen);
-	offSet = 0;
-	return false;	
+	if (p->m_State == 2)
+	{
+		packet = new Packet;
+		packetDataLen = p->m_uDatalen + 1;
+		inPacket.insert(inPacket.end(), p->m_aRecvBuff + 4, p->m_aRecvBuff + 4 + packetDataLen);
+		offSet = 0;
+		return false;
+	}
+	
 }
 void __declspec(naked) my_send_packet()
 {
@@ -447,12 +479,14 @@ void __declspec(naked) my_decodeStr()
 	__asm
 	{
 		pushad
-		push[esp + 12 + 8 * 4]
-		push[esp + 12 + 8 * 4]
-		push[esp + 12 + 8 * 4]
-		push[esp + 12 + 8 * 4] // caller address of the parent function
+		push[esp + 16 + 8 * 4]
+		push[esp + 16 + 8 * 4]
+		push[esp + 16 + 8 * 4]
+		push[esp + 16 + 8 * 4]// caller address of the parent function
+		push[esp + 16 + 8 * 4]// caller address of the parent function
+
 		call hook_decodestr // my function
-		add esp, 16 //cleaning the stack since its cdecl calling convention
+		add esp, 20 //cleaning the stack since its cdecl calling convention
 		popad // restoring the registers
 		push ebp // original bytes
 		mov ebp, esp // original bytes
