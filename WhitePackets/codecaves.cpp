@@ -114,9 +114,9 @@ void __fastcall hook_decode1(CInPacket* ecx, void* edx, DWORD address)
 			packet->callerAddress = address;
 			pipeMessage message;
 			message.id = 2;
-			message.data = *packet;
+			message.data = packet;
 
-			pipeToGui.sendMessage(message);
+			pipeToGui.sendPacketMessage(message);
 			delete packet;
 			inPacket.clear();
 			offSet = 0;
@@ -156,8 +156,8 @@ void __fastcall hook_decode2(CInPacket* ecx, void* edx, DWORD address)
 			packet->callerAddress = address;
 			pipeMessage message;
 			message.id = 2;
-			message.data = *packet;
-			pipeToGui.sendMessage(message);
+			message.data = packet;
+			pipeToGui.sendPacketMessage(message);
 			delete packet;
 			inPacket.clear();
 			offSet = 0;
@@ -187,9 +187,9 @@ void __fastcall hook_decode4(CInPacket* ecx, void* edx, DWORD address)
 			packet->callerAddress = address;
 			pipeMessage message;
 			message.id = 2;
-			message.data = *packet;
+			message.data = packet;
 
-			pipeToGui.sendMessage(message);
+			pipeToGui.sendPacketMessage(message);
 			delete packet;
 			inPacket.clear();
 			offSet = 0;
@@ -226,9 +226,9 @@ void __cdecl hook_decodestr(DWORD address, void* param1, char* str_ptr, unsigned
 			packet->callerAddress = address;
 			pipeMessage message;
 			message.id = 2;
-			message.data = *packet;
+			message.data = packet;
 
-			pipeToGui.sendMessage(message);
+			pipeToGui.sendPacketMessage(message);
 			delete packet;
 			inPacket.clear();
 			offSet = 0;
@@ -257,9 +257,9 @@ void __fastcall hook_decodebuffer(CInPacket* ecx, void* edx,DWORD address, void*
 			packet->callerAddress = address;
 			pipeMessage message;
 			message.id = 2;
-			message.data = *packet;
+			message.data = packet;
 
-			pipeToGui.sendMessage(message);
+			pipeToGui.sendPacketMessage(message);
 			delete packet;
 			inPacket.clear();
 			offSet = 0;
@@ -276,9 +276,9 @@ void __fastcall sniff_send(void* ecx, void* edx,DWORD address, COutPacket* p)
 {
 	pipeMessage message;
 	message.id = 1;
-	message.data = *packet;
+	message.data = packet;
 	
-	pipeToGui.sendMessage(message);
+	pipeToGui.sendPacketMessage(message);
 	delete packet;
 }
 

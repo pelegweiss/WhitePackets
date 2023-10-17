@@ -27,6 +27,7 @@ void mainLogic()
     Sleep(1000);
 
 }
+/*
 void pipeHandler()
 {
     using namespace std::literals::chrono_literals;
@@ -48,3 +49,4 @@ void messagesHandler(pipeMessage message)
 {
 
 }
+*/
