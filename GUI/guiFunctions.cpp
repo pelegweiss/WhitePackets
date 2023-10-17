@@ -23,20 +23,27 @@ void messagesHandler(pipeMessage message)
             // Convert caller address and header to byte vectors
             std::vector<BYTE> callerAddressBytes = convertToBytes(message.data.callerAddress);
             std::vector<BYTE> headerBytes = convertToBytes(message.data.header);
-
             std::wstring callerAddressString = L"0x" + toHexString(callerAddressBytes);
             std::wstring headerString = toHexString(headerBytes);
 
-            std::vector<std::wstring> buf;
-            buf.emplace_back(callerAddressString);
-            buf.emplace_back(L"Send");
-            buf.emplace_back(headerString);
+            std::vector<std::wstring> filterBuffer;
+            filterBuffer.emplace_back((std::wstring)L"Filter");
+            filterBuffer.emplace_back(headerString);
+            if (!isHeaderFiltered(filterBuffer, lvFilters))
+            {
+                std::vector<std::wstring> buf;
+                buf.emplace_back(callerAddressString);
+                buf.emplace_back(L"Send");
+                buf.emplace_back(headerString);
 
-            message.data.segments.erase(message.data.segments.begin());
-            std::wstring data;
-            data = segmentsToWstring(message.data.segments);
-            buf.emplace_back(data);
-            lvPackets->add_item(buf);
+                message.data.segments.erase(message.data.segments.begin());
+                std::wstring data;
+                data = segmentsToWstring(message.data.segments);
+                buf.emplace_back(data);
+                lvPackets->add_item(buf);
+            }
+
+
 
         }
         break;
@@ -52,16 +59,23 @@ void messagesHandler(pipeMessage message)
             std::wstring callerAddressString = L"0x" + toHexString(callerAddressBytes);
             std::wstring headerString = toHexString(headerBytes);
 
-            std::vector<std::wstring> buf;
-            buf.emplace_back(callerAddressString);
-            buf.emplace_back(L"Recv");
-            buf.emplace_back(headerString);
+            std::vector<std::wstring> filterBuffer;
+            filterBuffer.emplace_back((std::wstring)L"Filter");
+            filterBuffer.emplace_back(headerString);
+            if (!isHeaderFiltered(filterBuffer, lvFilters))
+            {
+                std::vector<std::wstring> buf;
+                buf.emplace_back(callerAddressString);
+                buf.emplace_back(L"Recv");
+                buf.emplace_back(headerString);
 
-            message.data.segments.erase(message.data.segments.begin());
-            std::wstring data;
-            data = segmentsToWstring(message.data.segments);
-            buf.emplace_back(data);
-            lvPackets->add_item(buf);
+                message.data.segments.erase(message.data.segments.begin());
+                std::wstring data;
+                data = segmentsToWstring(message.data.segments);
+                buf.emplace_back(data);
+                lvPackets->add_item(buf);
+            }
+
 
 
             break;

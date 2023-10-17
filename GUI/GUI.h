@@ -11,7 +11,7 @@ name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 const int height = 550;
 const int width = 825;
-HMENU hFileMenu;
+HMENU hFileMenu, hListViewPacketPopUpMenu, hListViewFiltersPopUpMenu;
 HWND parentHWND,settingsHWND;
 LRESULT CALLBACK windowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
 LRESULT CALLBACK settingsProcedure(HWND, UINT, WPARAM, LPARAM);
@@ -43,12 +43,12 @@ std::wstring dllPath = L"";
 bool sniff = false;
 enum controlIDs
 {
-	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID,settingsButton,maplestoryPathTextBoxID,dllPathTextBoxID,maplestoryPathButtonID,dllPathButtonID,launchButtonID
+	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID,settingsButton,maplestoryPathTextBoxID,dllPathTextBoxID,maplestoryPathButtonID,dllPathButtonID,launchButtonID, removeFilterID,lvPacketsFilterID,lvPacketsBlockID
 };
 
 void pipeHandler();
 
 wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
 std::wstring open_file(HWND hWnd);
-
+bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);
 

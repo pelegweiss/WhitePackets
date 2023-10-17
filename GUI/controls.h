@@ -39,7 +39,7 @@ public:
 	std::vector<std::vector<std::wstring>> m_v;
 	bool m_scroll{ true };
 	int m_itemcount = 0;
-	ListView(HWND hwndParent, int x1, int y1, int x2, int y2, int id, DWORD styles, DWORD extendedStyles);
+	ListView(HWND hwndParent, int x1, int y1, int x2, int y2, int id, DWORD styles);
 	void showLV();
 	void setExtendedStyltes(DWORD styles);
 	void add_column(int width, std::wstring text);

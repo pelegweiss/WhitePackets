@@ -83,8 +83,7 @@ Control::Control(HWND hwndParent, int x1, int y1, int x2, int y2, int id, LPCWST
 	);
 	this->ControlID = (HMENU)id;
 }
-
-ListView::ListView(HWND hwndParent, int x1, int y1, int x2, int y2, int id, DWORD styles, DWORD extendedStyles)
+ListView::ListView(HWND hwndParent, int x1, int y1, int x2, int y2, int id, DWORD styles)
 {
 	this->hWnd = CreateWindowExW(0, WC_LISTVIEWW, NULL, styles, x1, y1,
 		x2,
@@ -94,14 +93,11 @@ ListView::ListView(HWND hwndParent, int x1, int y1, int x2, int y2, int id, DWOR
 		NULL,
 		NULL
 	);
-	if (extendedStyles != NULL)
-	{
-		ListView_SetExtendedListViewStyle(this->hWnd, styles);
-	}
 
 	this->ControlID = (HMENU)id;
 
 };
+
 void ListView::showLV()
 {
 	ShowWindow(this->hWnd, 1);
