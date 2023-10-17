@@ -13,3 +13,5 @@ extern bool sniff;
 extern ListView * lvPackets;
 extern ListView* lvFilters;
 extern bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);
+
+Packet processPacketMessage(pipeMessage message);

@@ -65,17 +65,6 @@ LRESULT CALLBACK settingsProcedure(HWND settingsHWND, UINT msg, WPARAM wp, LPARA
             return DefWindowProc(settingsHWND, msg, wp, lp);
     }
 }
-void draw_text(HDC hdc, RECT& iR, COLORREF color, std::wstring Text) {
-    SIZE sz = { 0 };
-    GetTextExtentPoint32(hdc, Text.c_str(), Text.length(), &sz);
-    SetBkMode(hdc, TRANSPARENT);
-    SetTextColor(hdc, color);
-    DrawText(hdc, Text.c_str(), Text.length(), &iR, DT_LEFT);
-    Text += L" ";
-    SIZE new_sz = { 0 };
-    GetTextExtentPoint32(hdc, Text.c_str(), Text.length(), &new_sz);
-    iR.left += sz.cx;
-}
 LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp)
 {
     switch (msg)

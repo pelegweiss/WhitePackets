@@ -17,12 +17,14 @@ void messagesHandler(pipeMessage message)
         break;
         case 1:
         {
+
             if (!sniff)
                 break;
 
+            Packet p = processPacketMessage(message);
             // Convert caller address and header to byte vectors
-            std::vector<BYTE> callerAddressBytes = convertToBytes(message.data.callerAddress);
-            std::vector<BYTE> headerBytes = convertToBytes(message.data.header);
+            std::vector<BYTE> callerAddressBytes = convertToBytes(p.callerAddress);
+            std::vector<BYTE> headerBytes = convertToBytes(p.header);
             std::wstring callerAddressString = L"0x" + toHexString(callerAddressBytes);
             std::wstring headerString = toHexString(headerBytes);
 
@@ -36,13 +38,12 @@ void messagesHandler(pipeMessage message)
                 buf.emplace_back(L"Send");
                 buf.emplace_back(headerString);
 
-                message.data.segments.erase(message.data.segments.begin());
+                p.segments.erase(p.segments.begin());
                 std::wstring data;
-                data = segmentsToWstring(message.data.segments);
+                data = segmentsToWstring(p.segments);
                 buf.emplace_back(data);
                 lvPackets->add_item(buf);
             }
-
 
 
         }
@@ -52,10 +53,10 @@ void messagesHandler(pipeMessage message)
             if (!sniff)
                 break;
 
+            Packet p = processPacketMessage(message);
             // Convert caller address and header to byte vectors
-            std::vector<BYTE> callerAddressBytes = convertToBytes(message.data.callerAddress);
-            std::vector<BYTE> headerBytes = convertToBytes(message.data.header);
-
+            std::vector<BYTE> callerAddressBytes = convertToBytes(p.callerAddress);
+            std::vector<BYTE> headerBytes = convertToBytes(p.header);
             std::wstring callerAddressString = L"0x" + toHexString(callerAddressBytes);
             std::wstring headerString = toHexString(headerBytes);
 
@@ -69,14 +70,12 @@ void messagesHandler(pipeMessage message)
                 buf.emplace_back(L"Recv");
                 buf.emplace_back(headerString);
 
-                message.data.segments.erase(message.data.segments.begin());
+                p.segments.erase(p.segments.begin());
                 std::wstring data;
-                data = segmentsToWstring(message.data.segments);
+                data = segmentsToWstring(p.segments);
                 buf.emplace_back(data);
                 lvPackets->add_item(buf);
             }
-
-
 
             break;
 
@@ -95,12 +94,12 @@ void pipeHandler()
         std::cout << "Failed to connect pipe, retrying" << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-    pipeMessage message = pipeToGui.readMessage();
+    pipeMessage message = pipeToGui.readPipeMessage();
     while (message.id != -1)
     {
 
         messagesHandler(message);
-        message = pipeToGui.readMessage();
+        message = pipeToGui.readPipeMessage();
     }
     std::cout << "Connection ended, pipe is no longer exist" << std::endl;
 }
@@ -152,4 +151,46 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
 
         }
     }
+}
+
+
+Packet processPacketMessage(pipeMessage message)
+{
+    Packet p;
+    DWORD callerAddress;
+    WORD header;
+    std::vector<Segment> segments;
+    int segmentsLen;
+    int offSet = 0;
+    memcpy(&callerAddress, message.data, sizeof(DWORD));
+    offSet += 4;
+    memcpy(&header, (BYTE*)message.data + offSet, 2);
+    offSet += 2;
+    memcpy(&segmentsLen, (BYTE*)message.data + offSet, 4);
+    offSet += 4;
+    for (int i = 0; i < segmentsLen; i++)
+    {
+        Segment seg;
+        std::vector<BYTE> bytes;
+        int type;
+        int elementLen;
+        memcpy(&type, (BYTE*)message.data + offSet, 4);
+        offSet += 4;
+        memcpy(&elementLen, (BYTE*)message.data + offSet, 4);
+        offSet += 4;
+        for (int j = 0; j < elementLen; j++)
+        {
+            BYTE b;
+            memcpy(&b, (BYTE*)message.data + offSet, 1);
+            offSet += 1;
+            bytes.emplace_back(b);
+        }
+        seg.type = type;
+        seg.bytes = bytes;
+        segments.emplace_back(seg);
+    }
+    p.callerAddress = callerAddress;
+    p.header = header;
+    p.segments = segments;
+    return p;
 }
