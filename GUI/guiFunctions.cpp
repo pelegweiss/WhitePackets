@@ -3,9 +3,9 @@
 #include "controls.h"
 #include <iomanip>
 
-extern ListView* lvPackets;
-Pipe pipeToGui(L"pipeToGui");
 
+Pipe pipeToGui(L"pipeToGui");
+Pipe pipeToDLL(L"pipeToDLL");
 void messagesHandler(pipeMessage message)
 {
     switch (message.id)
@@ -91,7 +91,6 @@ void pipeHandler()
 
     while (!pipeToGui.connectPipe())
     {
-        std::cout << "Failed to connect pipe, retrying" << std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     pipeMessage message = pipeToGui.readPipeMessage();
@@ -102,6 +101,8 @@ void pipeHandler()
         message = pipeToGui.readPipeMessage();
     }
     std::cout << "Connection ended, pipe is no longer exist" << std::endl;
+    CloseHandle(pipeToDLL.hNamedPipe);
+    isPipeToDLLConnected = false;
 }
 bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
 {
@@ -129,7 +130,6 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
         Sleep(1000);
         if (inject(L"HeavenMS-localhost-WINDOW.exe", dPath) == true)
         {
-            //std::thread thread_obj(pipeHandlerFunc);
             DWORD tID;
             HANDLE t1 = CreateThread(
                 0,
@@ -139,9 +139,24 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
                 0,
                 &tID
             );
+            pipeToDLL.createPipe();
+            pipeToDLL.waitForClient();
+            isPipeToDLLConnected = true;
+                    
 
-            //pipeToCreate.createPipe();
-            //pipeToCreate.waitForClient();
+
+            for (int i = 0; i < blockedHeaders.size(); i++)
+            {
+                WORD wordValue = blockedHeaders.at(i);
+                void* voidPointer = (void*)&wordValue; // Casting DWORD to void*
+                pipeMessage message;
+                Header h;
+                h.action = 1;
+                h.header = wordValue;
+                message.id = bHeader;
+                message.data = (void*)&h;
+                pipeToDLL.sendBlockHeaderMessage(message);
+            }
             return true;
         }
         else

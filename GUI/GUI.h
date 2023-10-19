@@ -36,7 +36,6 @@ Control* dllPathTextBox;
 Control* dllPathButton;
 Control* maplestoryPathButton;
 Control* launchButton;
-Pipe pipeToDLL(L"pipeToDLL");
 bool isSettingsOpen = false;
 std::wstring maplestoryPath = L"";
 std::wstring dllPath = L"";
@@ -52,3 +51,7 @@ wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
 std::wstring open_file(HWND hWnd);
 bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);
 
+std::vector<WORD> blockedHeaders;
+BOOL isPipeToDLLConnected = false;
+
+extern Pipe pipeToDLL;

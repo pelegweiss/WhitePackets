@@ -152,230 +152,323 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
 
 
     
-    case WM_COMMAND:
-    {
-        switch (wp)
+        case WM_COMMAND:
         {
-        case sendPacketID:
-        {
-            //pipeMessage message;
-            //message.type = L"Packet";
-            //message.data = getTextFromBox(packetTextBox->Get_Hwnd(), true);
-            //pipeToDLL.sendMessage(message);
-        }
-        break;
-        case launchButtonID:
-        {
-            const int maxRetries = 3;
-            int retriesCounter = 0;
-            bool launched = false;
-            while (retriesCounter < maxRetries)
+            switch (wp)
             {
-                if (runMaplestory(maplestoryPath, dllPath) == false)
+            case sendPacketID:
+            {
+                //pipeMessage message;
+                //message.type = L"Packet";
+                //message.data = getTextFromBox(packetTextBox->Get_Hwnd(), true);
+                //pipeToDLL.sendMessage(message);
+            }
+            break;
+            case launchButtonID:
+            {
+                const int maxRetries = 3;
+                int retriesCounter = 0;
+                bool launched = false;
+                while (retriesCounter < maxRetries)
                 {
-                    retriesCounter++;
+                    if (runMaplestory(maplestoryPath, dllPath) == false)
+                    {
+                        retriesCounter++;
+                    }
+                    else
+                    {
+                        std::cout << "Managed to launch and inject" << std::endl;
+                        retriesCounter = 3;
+                        launched = true;
+                    }
+                }
+                if (launched == false)
+                {
+                    std::cout << "Failed to launch and injcet" << std::endl;
+                }
+
+            }
+            break;
+            case settingsButton:
+            {
+                if (settingsWindow->isCreated() == false)
+                {
+                    settingsWindow->createWindow(L"SettingsWindowClass", 150, 150, 425, 120);
+                }
+
+            }
+            break;
+            case autoScrollID:
+            {
+                lvPackets->m_scroll = !lvPackets->m_scroll;
+                if (lvPackets->m_scroll) { SendMessage(autoScroll->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"ON"); }
+                else { SendMessage(autoScroll->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"OFF"); }
+                break;
+            }
+            break;
+            case clearLVPacketsID:
+            {
+                lvPackets->clear_items();
+            }
+            break;
+            case sniffPacketsID:
+            {
+                sniff = !sniff;
+                if (sniff)
+                {
+                    SendMessage(sniffPackets->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"Pause");
                 }
                 else
                 {
-                    std::cout << "Managed to launch and inject" << std::endl;
-                    retriesCounter = 3;
-                    launched = true;
+                    SendMessage(sniffPackets->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"Start");
                 }
             }
-            if (launched == false)
-            {
-                std::cout << "Failed to launch and injcet" << std::endl;
-            }
-
-        }
-        break;
-        case settingsButton:
-        {
-            if (settingsWindow->isCreated() == false)
-            {
-                settingsWindow->createWindow(L"SettingsWindowClass", 150, 150, 425, 120);
-            }
-
-        }
-        break;
-        case autoScrollID:
-        {
-            lvPackets->m_scroll = !lvPackets->m_scroll;
-            if (lvPackets->m_scroll) { SendMessage(autoScroll->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"ON"); }
-            else { SendMessage(autoScroll->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"OFF"); }
             break;
-        }
-        break;
-        case clearLVPacketsID:
-        {
-            lvPackets->clear_items();
-        }
-        break;
-        case sniffPacketsID:
-        {
-            sniff = !sniff;
-            if (sniff)
+            case lvPacketsFilterID:
             {
-                SendMessage(sniffPackets->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"Pause");
-            }
-            else
-            {
-                SendMessage(sniffPackets->Get_Hwnd(), WM_SETTEXT, 0, (LPARAM)L"Start");
-            }
-        }
-        break;
-        case lvPacketsFilterID:
-        {
-            //Get Header of selected item from list view
-            int iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), -1, LVNI_SELECTED);
-            //iterating through all selected items
-            while (iPos != -1)
-            {
-                // iPos is the index of a selected item
-
-                //getHeader based on iPos(index)
-                std::wstring header = lvPackets->m_v[iPos][2];
-                //Check if header is already blocked
-                std::vector<std::wstring> buf;
-                buf.emplace_back((std::wstring)L"Filter");
-                buf.emplace_back(header);
-                bool isFiltered = isHeaderFiltered(buf, lvFilters);
-                if (!isFiltered)
+                //Get Header of selected item from list view
+                int iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), -1, LVNI_SELECTED);
+                //iterating through all selected items
+                while (iPos != -1)
                 {
-                    std::vector<std::wstring> v;
-                    v.emplace_back((std::wstring)L"Filter");
-                    v.emplace_back(header);
-                    lvFilters->add_item(v);
+                    // iPos is the index of a selected item
+
+                    //getHeader based on iPos(index)
+                    std::wstring header = lvPackets->m_v[iPos][2];
+                    //Check if header is already blocked
+                    std::vector<std::wstring> buf;
+                    buf.emplace_back((std::wstring)L"Filter");
+                    buf.emplace_back(header);
+                    bool isFiltered = isHeaderFiltered(buf, lvFilters);
+                    if (!isFiltered)
+                    {
+                        std::vector<std::wstring> v;
+                        v.emplace_back((std::wstring)L"Filter");
+                        v.emplace_back(header);
+                        lvFilters->add_item(v);
+                    }
+                    //Move to next item
+                    iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), iPos, LVNI_SELECTED);
                 }
-                //Move to next item
-                iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), iPos, LVNI_SELECTED);
+
             }
-
             break;
-        }
 
-        case lvPacketsBlockID:
-        {
-            //Get Header of selected item from list view
-            int iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), -1, LVNI_SELECTED);
-
-            //iterating through all selected items
-            while (iPos != -1)
+            case lvPacketsBlockID:
             {
-                // iPos is the index of a selected item
-                //getHeader based on iPos(index)
-                std::wstring header = lvPackets->m_v[iPos][2];
-                //Check if header is already blocked
-                std::vector<std::wstring> buf;
-                buf.emplace_back((std::wstring)L"Block");
-                buf.emplace_back(header);
-                bool isBlocked = isHeaderFiltered(buf, lvFilters);
-                if (!isBlocked)
+                //Get Header of selected item from list view
+                int iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), -1, LVNI_SELECTED);
+
+                //iterating through all selected items
+                while (iPos != -1)
                 {
-                    std::vector<std::wstring> v;
-                    v.emplace_back((std::wstring)L"Block");
-                    v.emplace_back(header);
-                    lvFilters->add_item(v);
+                    // iPos is the index of a selected item
+                    //getHeader based on iPos(index)
+                    std::wstring header = lvPackets->m_v[iPos][2];
+                    //Check if header is already blocked
+                    std::vector<std::wstring> buf;
+                    buf.emplace_back((std::wstring)L"Block");
+                    buf.emplace_back(header);
+                    bool isBlocked = isHeaderFiltered(buf, lvFilters);
+                    if (!isBlocked)
+                    {
+                        std::vector<std::wstring> v;
+                        v.emplace_back((std::wstring)L"Block");
+                        v.emplace_back(header);
+                        lvFilters->add_item(v);
+
+                        unsigned long ulValue = wcstoul(header.c_str(), NULL, 16);
+                        WORD wordValue = static_cast<WORD>(ulValue);
+                        if (isPipeToDLLConnected == false)
+                        {
+                            blockedHeaders.emplace_back(wordValue);
+                        }
+                        else
+                        {
+                            pipeMessage message;
+                            Header h;
+                            h.action = 1;
+                            h.header = wordValue;
+                            message.id = bHeader;
+                            message.data = (void*)&h;
+                            pipeToDLL.sendBlockHeaderMessage(message);
+                        }
+                    }
+                    iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), iPos, LVNI_SELECTED);
+
+
                 }
                 //Move to next Item
                 iPos = ListView_GetNextItem(lvPackets->Get_Hwnd(), iPos, LVNI_SELECTED);
             }
-
             break;
-        }
-        case filterHeaderID:
-        {
-            //Get header
-            wchar_t* header = new wchar_t;
-            header = getTextFromBox(filterTextBox->Get_Hwnd(), false);
-            int len = GetWindowTextLength(filterTextBox->Get_Hwnd());
-            //Check for spaces
-            bool containSpace = false;
-            for (int i = 0; i < len; i++)
+            case blockHeaderID:
             {
-                wchar_t buffer = header[i];
-                if (buffer == 32)
+                //Get header
+                wchar_t* header = new wchar_t;
+                header = getTextFromBox(filterTextBox->Get_Hwnd(), false);
+                int len = GetWindowTextLength(filterTextBox->Get_Hwnd());
+                //Check for spaces
+                bool containSpace = false;
+                for (int i = 0; i < len; i++)
                 {
-                    containSpace = true;
-                    break;
-                }
-            }
-
-            //Check if header is too long
-            if (len > 4)
-            {
-                MessageBox(parentHWND, L"Your header contatin more than 2 bytes, please insert proper header", L"Error", MB_OK | MB_ICONSTOP);
-            }
-            else if (len < 4)
-            {
-                MessageBox(parentHWND, L"Your header contatin less than 2 bytes, please insert proper header", L"Error", MB_OK | MB_ICONSTOP);
-
-            }
-            else
-            {
-                std::vector<std::wstring> buf;
-                buf.emplace_back((std::wstring)L"Filter");
-                buf.emplace_back((std::wstring)header);
-                bool isFiltered = isHeaderFiltered(buf, lvFilters);
-                if (!isFiltered)
-                {
-                    lvFilters->add_item(buf);
-                }
-            }
-
-        }
-        break;
-        case removeFilterID:
-        {
-            int iPos = ListView_GetNextItem(lvFilters->Get_Hwnd(), -1, LVNI_SELECTED);
-            //iterating through all selected items
-            while (iPos != -1)
-            {
-                // iPos is the index of a selected item
-
-                //getHeader based on iPos(index)
-
-                std::vector<std::wstring> buf;
-                std::wstring type = lvFilters->m_v[iPos][0];
-                std::wstring header = lvFilters->m_v[iPos][1];
-                buf.emplace_back(type);
-                buf.emplace_back(header);
-                for (int i = 0; i < lvFilters->m_v.size(); i++)
-                {
-                    if (buf == lvFilters->m_v.at(i))
+                    wchar_t buffer = header[i];
+                    if (buffer == 32)
                     {
-                        lvFilters->m_v.erase(lvFilters->m_v.begin() + i);
-                        ListView_DeleteItem(lvFilters->Get_Hwnd(), iPos);
-                        lvFilters->m_itemcount--;
-                        ListView_SetItemCountEx(lvFilters->Get_Hwnd(), lvFilters->m_itemcount, NULL);
+                        containSpace = true;
                         break;
+                    }
+                }
+
+                //Check if header is too long
+                if (len > 4)
+                {
+                    MessageBox(parentHWND, L"Your header contatin more than 2 bytes, please insert proper header", L"Error", MB_OK | MB_ICONSTOP);
+                }
+                else if (len < 4)
+                {
+                    MessageBox(parentHWND, L"Your header contatin less than 2 bytes, please insert proper header", L"Error", MB_OK | MB_ICONSTOP);
+
+                }
+                else
+                {
+                    std::vector<std::wstring> buf;
+                    buf.emplace_back((std::wstring)L"Block");
+                    buf.emplace_back((std::wstring)header);
+                    bool isFiltered = isHeaderFiltered(buf, lvFilters);
+                    if (!isFiltered)
+                    {
+                        lvFilters->add_item(buf);
+
+                        unsigned long ulValue = wcstoul(header, NULL, 16);
+                        WORD wordValue = static_cast<WORD>(ulValue);
+                        if (isPipeToDLLConnected == false)
+                        {
+                            blockedHeaders.emplace_back(wordValue);
+                        }
+                        else
+                        {
+                            pipeMessage message;
+                            Header h;
+                            h.action = 1;
+                            h.header = wordValue;
+                            message.id = bHeader;
+                            message.data = (void*)&h;
+                            pipeToDLL.sendBlockHeaderMessage(message);
+                        }
 
                     }
                 }
-                //Move to next item
-                iPos = ListView_GetNextItem(lvFilters->Get_Hwnd(), -1, LVNI_SELECTED);
+
             }
-
             break;
-        }
-        }
-    }
-    break;
+            case filterHeaderID:
+            {
+                //Get header
+                wchar_t* header = new wchar_t;
+                header = getTextFromBox(filterTextBox->Get_Hwnd(), false);
+                int len = GetWindowTextLength(filterTextBox->Get_Hwnd());
+                //Check for spaces
+                bool containSpace = false;
+                for (int i = 0; i < len; i++)
+                {
+                    wchar_t buffer = header[i];
+                    if (buffer == 32)
+                    {
+                        containSpace = true;
+                        break;
+                    }
+                }
 
-    case WM_CREATE:
-    {
-        addMenus(parentHWND);
-        addControls(parentHWND);
-    }
-    break;
+                //Check if header is too long
+                if (len > 4)
+                {
+                    MessageBox(parentHWND, L"Your header contatin more than 2 bytes, please insert proper header", L"Error", MB_OK | MB_ICONSTOP);
+                }
+                else if (len < 4)
+                {
+                    MessageBox(parentHWND, L"Your header contatin less than 2 bytes, please insert proper header", L"Error", MB_OK | MB_ICONSTOP);
 
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-    }
-    break;
-    default:
-        return DefWindowProc(parentHWND, msg, wp, lp);
+                }
+                else
+                {
+                    std::vector<std::wstring> buf;
+                    buf.emplace_back((std::wstring)L"Filter");
+                    buf.emplace_back((std::wstring)header);
+                    bool isFiltered = isHeaderFiltered(buf, lvFilters);
+                    if (!isFiltered)
+                    {
+                        lvFilters->add_item(buf);
+                    }
+                }
+
+            }
+            break;
+            case removeFilterID:
+            {
+                int iPos = ListView_GetNextItem(lvFilters->Get_Hwnd(), -1, LVNI_SELECTED);
+                //iterating through all selected items
+                while (iPos != -1)
+                {
+                    // iPos is the index of a selected item
+
+                    //getHeader based on iPos(index)
+
+                    std::vector<std::wstring> buf;
+                    std::wstring type = lvFilters->m_v[iPos][0];
+                    std::wstring header = lvFilters->m_v[iPos][1];
+                    buf.emplace_back(type);
+                    buf.emplace_back(header);
+                    for (int i = 0; i < lvFilters->m_v.size(); i++)
+                    {
+                        if (buf == lvFilters->m_v.at(i))
+                        {
+                            lvFilters->m_v.erase(lvFilters->m_v.begin() + i);
+                            ListView_DeleteItem(lvFilters->Get_Hwnd(), iPos);
+                            lvFilters->m_itemcount--;
+                            ListView_SetItemCountEx(lvFilters->Get_Hwnd(), lvFilters->m_itemcount, NULL);
+                            if (isPipeToDLLConnected)
+                            {
+                                if (wcscmp(L"Block", type.c_str()) == 0)
+                                {
+                                    unsigned long ulValue = wcstoul(header.c_str(), NULL, 16);
+                                    WORD wordValue = static_cast<WORD>(ulValue);
+                                    Header h;
+                                    pipeMessage message;
+                                    h.action = 0;
+                                    h.header = wordValue;
+                                    message.id = bHeader;
+                                    message.data = (void*)&h;
+                                    pipeToDLL.sendBlockHeaderMessage(message);
+                                }
+                            }
+
+                            break;
+
+                        }
+                    }
+                    //Move to next item
+                    iPos = ListView_GetNextItem(lvFilters->Get_Hwnd(), -1, LVNI_SELECTED);
+                }
+
+            }
+            break;
+            }
+        }
+        break;
+        case WM_CREATE:
+        {
+            addMenus(parentHWND);
+            addControls(parentHWND);
+        }
+        break;
+        case WM_DESTROY:
+        {
+            PostQuitMessage(0);
+        }
+        break;
+        default:
+            return DefWindowProc(parentHWND, msg, wp, lp);
     }
 
  
@@ -412,7 +505,7 @@ void addControls(HWND parentHWND)
     CreateWindow(L"static", L"Header:", WS_VISIBLE | WS_CHILD, 600, 205, 50, 25, parentHWND, NULL, NULL, NULL);
     filterTextBox = new Control(parentHWND, 655, 205, 50, 20, filterTextBoxID, L"edit", L"");
     filterHeader = new Control(parentHWND, 705, 205, 50, 20, filterHeaderID,L"button", L"Filter");
-    blockHeader = new Control(parentHWND, 755, 205, 50, 20, filterHeaderID, L"button", L"Block");
+    blockHeader = new Control(parentHWND, 755, 205, 50, 20, blockHeaderID, L"button", L"Block");
     launchButton = new Control(parentHWND, 700, 440, 100, 50, launchButtonID, L"button", L"Launch");
 }
 void addSettingsControl(HWND hwnd)

@@ -15,3 +15,5 @@ extern ListView* lvFilters;
 extern bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);
 
 Packet processPacketMessage(pipeMessage message);
+extern BOOL isPipeToDLLConnected;
+extern std::vector<WORD> blockedHeaders;
