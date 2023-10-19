@@ -6,6 +6,7 @@
 #include <vector>
 //#include "Pipe/Pipe.h"
 #include "Pipe.h"
+extern std::vector<WORD> blockedHeaders;
 
 WORD bytesToWord(const std::vector<BYTE>& bytes) {
 	if (bytes.size() < sizeof(WORD)) {
@@ -286,6 +287,15 @@ bool __fastcall sniff_recv(void* ecx, void* edx, DWORD address, CInPacket* p)
 {
 	if (p->m_State == 2)
 	{
+		WORD header; 
+		memcpy(&header, p->m_aRecvBuff + 4, sizeof(WORD));
+		for (int i = 0; i < blockedHeaders.size(); i++)
+		{
+			WORD h = blockedHeaders.at(i);
+			if (h == header)
+				return true;
+		}
+
 		packet = new Packet;
 		packetDataLen = p->m_uDatalen + 1;
 		inPacket.insert(inPacket.end(), p->m_aRecvBuff + 4, p->m_aRecvBuff + 4 + packetDataLen);

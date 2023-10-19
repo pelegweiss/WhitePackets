@@ -1,4 +1,5 @@
 #include "logic.h"
+extern Pipe pipeToDLL;
 DWORD WINAPI HackThread(HMODULE hModule)
 {
     // Create a console for the DLL.

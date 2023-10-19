@@ -7,8 +7,10 @@
 #include "Pipe.h"
 void mainLogic();
 void pipeHandler();
-void messagesHandler(pipeMessage message);
+void messageHandler(pipeMessage message);
 enum messagesIDS
 {
 	sendID, recieveID
 };
+
+Header processHeader(pipeMessage message);
