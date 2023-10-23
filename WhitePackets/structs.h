@@ -4,7 +4,7 @@
 struct COutPacket
 {
     int m_bLoopback;
-    unsigned char* m_aSendBuff;
+    BYTE * m_aSendBuff;
     unsigned int m_uOffset;
     int m_bIsEncrpytedByShanda;
 };

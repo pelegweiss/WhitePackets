@@ -3,7 +3,10 @@
 #include "windows.h"
 
 
-void __fastcall sniff_send(void* ecx, void* edx, DWORD address, COutPacket* p);
+Packet packet;
+Packet injectedPacket;
+
+void __fastcall sniff_send(void* ecx, void* edx, COutPacket* p);
 bool __fastcall sniff_recv(void* ecx, void* edx,DWORD address, CInPacket* p);
 
 void __fastcall hook_coutpacket(void* ecx, void* edx, DWORD header, DWORD address);
@@ -33,4 +36,6 @@ void my_decodeStr();
 void my_decodeBuffer();
 
 void setUpHooks();
+void SendPacket(Packet packet);
+void ProcessPacket(Packet data);
 

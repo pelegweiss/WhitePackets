@@ -14,3 +14,4 @@ enum messagesIDS
 };
 
 Header processHeader(pipeMessage message);
+extern Packet injectedPacket;
