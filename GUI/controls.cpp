@@ -117,8 +117,8 @@ void ListView::add_column(int width, std::wstring text)
 }
 void ListView::add_item(std::vector<std::wstring> data)
 {
-	m_v.emplace_back(data);
-	ListView_SetItemCountEx(this->hWnd, m_v.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	this->m_v.emplace_back(data);
+	ListView_SetItemCountEx(this->hWnd, this->m_v.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 	++this->m_itemcount;
 	if (this->m_scroll) { ListView_EnsureVisible(this->hWnd, this->m_itemcount - 1, false); }
 }

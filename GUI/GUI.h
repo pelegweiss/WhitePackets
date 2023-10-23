@@ -6,6 +6,8 @@
 #include "injector.h"
 #include "guiFunctions.h"
 #include <chrono>
+#include <sstream>
+
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -47,10 +49,11 @@ enum controlIDs
 
 void pipeHandler();
 
-wchar_t* getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
+std::wstring getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
 std::wstring open_file(HWND hWnd);
 bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);
-
+void showPopUpMenu(HMENU popUpMenu,HWND mainWindowHWND,LPARAM lowParam);
+Packet processPacketFromTextBox(std::wstring data);
 std::vector<WORD> blockedHeaders;
 BOOL isPipeToDLLConnected = false;
 

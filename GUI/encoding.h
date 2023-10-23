@@ -6,3 +6,5 @@
 std::wstring toHexString(const std::vector<BYTE>& bytes);
 std::wstring bytesToWString(const std::vector<unsigned char>& bytes);
 std::wstring segmentsToWstring(const std::vector<Segment>& segments);
+std::wstring bytesToActualString(const std::vector<unsigned char>& bytes);
+std::vector<BYTE> wideStringToBytes(const std::wstring& wideStr);

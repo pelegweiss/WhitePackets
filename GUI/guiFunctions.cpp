@@ -33,6 +33,7 @@ void messagesHandler(pipeMessage message)
             filterBuffer.emplace_back(headerString);
             if (!isHeaderFiltered(filterBuffer, lvFilters))
             {
+
                 std::vector<std::wstring> buf;
                 buf.emplace_back(callerAddressString);
                 buf.emplace_back(L"Send");
@@ -65,11 +66,11 @@ void messagesHandler(pipeMessage message)
             filterBuffer.emplace_back(headerString);
             if (!isHeaderFiltered(filterBuffer, lvFilters))
             {
+
                 std::vector<std::wstring> buf;
                 buf.emplace_back(callerAddressString);
                 buf.emplace_back(L"Recv");
                 buf.emplace_back(headerString);
-
                 p.segments.erase(p.segments.begin());
                 std::wstring data;
                 data = segmentsToWstring(p.segments);
@@ -82,6 +83,7 @@ void messagesHandler(pipeMessage message)
 
         }
         break;
+        //delete message.data;
 
     }
 }
@@ -98,6 +100,7 @@ void pipeHandler()
     {
 
         messagesHandler(message);
+        delete[] message.data;
         message = pipeToGui.readPipeMessage();
     }
     std::cout << "Connection ended, pipe is no longer exist" << std::endl;
@@ -167,7 +170,6 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
         }
     }
 }
-
 
 Packet processPacketMessage(pipeMessage message)
 {
