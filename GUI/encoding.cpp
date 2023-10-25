@@ -5,7 +5,7 @@
 #include <sstream>
 #include "Pipe/Pipe.h"
 
-std::wstring toHexString(const std::vector<unsigned char>& bytes) {
+std::wstring toHexString(const std::vector<BYTE>& bytes) {
     std::wstringstream ss;
     for (size_t i = 0; i < bytes.size(); ++i) {
         ss << std::hex << std::setw(2) << std::setfill(L'0') << std::uppercase << static_cast<int>(bytes[i]);

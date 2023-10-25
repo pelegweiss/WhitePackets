@@ -11,8 +11,8 @@
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-const int height = 550;
-const int width = 825;
+const int height = 800;
+const int width = 1200;
 HMENU hFileMenu, hListViewPacketPopUpMenu, hListViewFiltersPopUpMenu;
 HWND parentHWND,settingsHWND;
 LRESULT CALLBACK windowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
@@ -49,6 +49,7 @@ enum controlIDs
 
 void pipeHandler();
 
+void draw_text(HDC hdc, RECT& iR, COLORREF color, std::wstring Text);
 std::wstring getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
 std::wstring open_file(HWND hWnd);
 bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);

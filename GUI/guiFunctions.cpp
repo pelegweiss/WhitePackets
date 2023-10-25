@@ -83,7 +83,6 @@ void messagesHandler(pipeMessage message)
 
         }
         break;
-        //delete message.data;
 
     }
 }
@@ -112,7 +111,7 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
     const wchar_t* mPath = L"C:\\Users\\Peleg\\Desktop\\Personal\\Heaven.MS.v83.pack\\HeavenMS - Source\\HeavenMS-master\\HeavenMS-master\\MapleStory\\HeavenMS-localhost-WINDOW.exe";
     const wchar_t* dPath = L"C:\\WhitePackets\\WhitePackets\\Debug\\WhitePackets.dll";
     ShellExecute(nullptr, L"open", mPath, nullptr, nullptr, SW_SHOWNORMAL);
-    Sleep(3000);
+    Sleep(1500);
     int i = 0;
     DWORD procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
     while (procID == NULL && i < 10)

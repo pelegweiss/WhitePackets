@@ -1,4 +1,5 @@
 #include "gui.h"
+
 int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
 {
     FILE* pFile = nullptr;
@@ -70,58 +71,148 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
         {
             switch (((NMHDR*)lp)->code)
             {
-                case LVN_GETDISPINFO:
-                {
-
-                    NMLVDISPINFO* plvdi = (NMLVDISPINFO*)lp;
-                    int row = plvdi->item.iItem;
-                    int col = plvdi->item.iSubItem;
-                    if (plvdi->item.mask & LVIF_TEXT)
-                    {
-                        {
-                            switch (wp)
-                            {
-                            case lvPacketID:plvdi->item.pszText = (LPWSTR)lvPackets->m_v[row][col].c_str(); break;
-                            case lvFiltersID:plvdi->item.pszText = (LPWSTR)lvFilters->m_v[row][col].c_str(); break;
-                            }
-                        }
-                    }
-                }
-                break;
-                case NM_CUSTOMDRAW: 
+                case NM_CUSTOMDRAW:
                 {
                     LPNMLVCUSTOMDRAW  lplvcd = (LPNMLVCUSTOMDRAW)lp;
+                    RECT iR = { 0 };
+                    ListView_GetSubItemRect(lplvcd->nmcd.hdr.hwndFrom, lplvcd->nmcd.dwItemSpec, lplvcd->iSubItem, LVIR_BOUNDS, &iR);
+                    iR.left += 1;
+
                     switch (lplvcd->nmcd.dwDrawStage)
                     {
                         case CDDS_PREPAINT:
                             return CDRF_NOTIFYITEMDRAW;
-                            break;
                         case CDDS_ITEMPREPAINT:
-                        {
-                            int isEven = (int)lplvcd->nmcd.dwItemSpec % 2;
-                            switch (isEven)
-                            {
-                            case 0:
-                            {
-                                lplvcd->clrText = RGB(0, 0, 0);
-                                lplvcd->clrTextBk = RGB(225, 225, 225);
-                            }
-                            break;
-                            default:
-                            {
-                                lplvcd->clrText = RGB(0, 0, 0);
-                                lplvcd->clrTextBk = RGB(255, 255, 255);
-                            }
-                            break;
-                            }
-                            return CDRF_NEWFONT;
-                        }
-                        break;
+                            return CDRF_NOTIFYSUBITEMDRAW;
                         case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-                            return CDRF_NEWFONT;
-                    }
-                    return TRUE;
+                        {
+                            if (wp == (WPARAM)lvFilters->get_ControlID())
+                            {
+                                HBRUSH hBrushBG;
+                                switch ((int)lplvcd->nmcd.dwItemSpec % 2)
+                                {
+                                    case 0:hBrushBG = CreateSolidBrush(RGB(245, 245, 245)); break;
+                                    default: hBrushBG = CreateSolidBrush(RGB(255, 255, 255)); break;
 
+                                    if (ListView_GetItemState(lvFilters->Get_Hwnd(), lplvcd->nmcd.dwItemSpec, LVIS_SELECTED))
+                                    {
+                                        hBrushBG = CreateSolidBrush(RGB(221, 221, 255));
+                                    }
+                                    FillRect(lplvcd->nmcd.hdc, &iR, hBrushBG);
+                                    std::wstring Text = lvFilters->m_v[lplvcd->nmcd.dwItemSpec][lplvcd->iSubItem];
+
+                                    switch (lplvcd->iSubItem)
+                                    {
+                                        case 0:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
+                                        case 1:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
+                                    }
+                                }
+                            }
+                            if (wp == (WPARAM)lvPackets->get_ControlID())
+                            {
+                                bool isDark = false;
+
+                                HBRUSH hBrushBG;
+                                switch ((int)lplvcd->nmcd.dwItemSpec % 2)
+                                {
+                                case 0:hBrushBG = CreateSolidBrush(RGB(245, 245, 245)); break;
+                                default: hBrushBG = CreateSolidBrush(RGB(255, 255, 255));break;
+                                }
+                                if (ListView_GetItemState(lvPackets->Get_Hwnd(), lplvcd->nmcd.dwItemSpec, LVIS_SELECTED))
+                                {
+                                    hBrushBG = CreateSolidBrush(RGB(221, 221, 255));
+                                }
+                                FillRect(lplvcd->nmcd.hdc, &iR, hBrushBG);
+                                std::wstring Text = lvPackets->m_v[lplvcd->nmcd.dwItemSpec][lplvcd->iSubItem];
+                                switch (lplvcd->iSubItem)
+                                {
+                                    case 0:
+                                    {
+                                        draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 255), Text);
+                                    }
+                                    break;
+
+                                    case 1:
+                                    {
+
+                                        COLORREF color = RGB(255, 0, 0);
+                                        if (wcscmp(Text.c_str(), L"Recv") != 0) { color = RGB(11, 102, 35); }
+                                        draw_text(lplvcd->nmcd.hdc, iR, color, Text);
+                                    }
+                                    break;
+                                    case 2:
+                                    {
+                                        draw_text(lplvcd->nmcd.hdc, iR, RGB(102, 0, 204), Text);
+                                    }
+                                    break;
+                                    case 3:
+                                    {
+                                        std::wistringstream stream(Text);
+                                        std::wstring segmentString;
+                                        std::vector<std::wstring> data;
+                                        while (stream >> segmentString)
+                                        {
+                                            segmentString.erase(std::remove_if(segmentString.begin(), segmentString.end(), [](char c) { return c == '\r' || c == '\n'; }), segmentString.end());
+                                            if (!segmentString.empty())
+                                                if (segmentString.front() == L'"' and segmentString.back() == L'"')
+                                                {
+                                                    std::wstring lastSegment = data.at(data.size() - 1);
+                                                    data.pop_back();
+                                                    std::wstring finalString = lastSegment + segmentString + L' ';
+                                                    data.emplace_back(finalString);
+                                                }
+                                                else if (segmentString.front() == L'"' && segmentString.back() != L'"')
+                                                {
+                                                    std::wstring lastSegment = data.at(data.size() - 1);
+                                                    data.pop_back();
+                                                    std::wstring finalString = lastSegment + segmentString + L' ';
+                                                    while (segmentString.back() != L'"')
+                                                    {
+                                                        stream >> segmentString;
+                                                        finalString += L' ' + segmentString + L' ';
+                                                    }
+                                                    data.emplace_back(finalString);
+
+                                                }
+                                                else
+                                                {
+                                                    std::wstring finalString = segmentString + L' ';
+                                                    data.emplace_back(finalString);
+                                                }
+                                        }
+                                        if (!data.empty())
+                                        {
+                                            data.at(data.size() - 1).pop_back(); //removing last space
+                                            COLORREF color = RGB(192,192,220);
+                                            for (std::wstring segment : data)
+                                            {
+                                                switch (wcslen(segment.c_str()) - 1)
+                                                {
+                                                    case 2: {color = RGB(242, 168, 24); }break; 
+                                                    case 4: {color = RGB(240, 113, 120); }break;
+                                                    case 8: {color = RGB(54, 163, 217); }break;
+                                                    default:
+                                                        bool containsQuote = segment.find(L'"') != std::wstring::npos;
+                                                        if (containsQuote)
+                                                            color = RGB(0, 0, 128);
+                                                        else
+                                                            color = RGB(0, 0, 0);
+                                                    break;
+                                                }
+
+                                                draw_text(lplvcd->nmcd.hdc, iR, color, segment);
+
+                                            }
+                                        }
+
+                                    }
+                                    break;
+                                }
+                            }
+                            return CDRF_SKIPDEFAULT;
+
+                        }
+                    }
                 }
                 break;
                 case NM_CLICK:
@@ -505,37 +596,37 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
 }
 void addControls(HWND parentHWND)
 {
-    lvPackets = new ListView(parentHWND, 0, 0, 600, 400, lvPacketID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA);
+    lvPackets = new ListView(parentHWND, 0, 0, 970, 665, lvPacketID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA);
     lvPackets->setExtendedStyltes(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES | LVS_EX_AUTOSIZECOLUMNS);
 
-    lvPackets->add_column(160, L"Caller");
-    lvPackets->add_column(160, L"Type");
-    lvPackets->add_column(160, L"header");
-    lvPackets->add_column(1500, L"Data");
+    lvPackets->add_column(70, L"Caller");
+    lvPackets->add_column(40, L"Type");
+    lvPackets->add_column(50, L"header");
+    lvPackets->add_column(2000, L"Data");
     lvPackets->showLV();
 
-    packetTextBox = new Control(parentHWND, 0, 405, 500, 35, packetTextBoxID, L"Edit", L"", WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_VSCROLL);
+    packetTextBox = new Control(parentHWND, 0, 675, 860, 35, packetTextBoxID, L"Edit", L"", WS_VISIBLE | WS_CHILD | ES_MULTILINE | WS_VSCROLL);
 
-    sendPacket = new Control(parentHWND, 500, 405, 50, 35, sendPacketID, L"button", L"Send");
-    recvPacket = new Control(parentHWND, 550, 405, 50, 35, recvPacketID, L"button", L"Recv");
+    sendPacket = new Control(parentHWND, 870, 675, 50, 35, sendPacketID, L"button", L"Send");
+    recvPacket = new Control(parentHWND, 920, 675, 50, 35, recvPacketID, L"button", L"Recv");
 
-    sniffPackets = new Control(parentHWND, 0, 450, 50, 25, sniffPacketsID, L"Button", L"Start");
-    clearLVPackets = new Control(parentHWND, 55, 450, 50, 25, clearLVPacketsID, L"Button", L"Clear");
+    sniffPackets = new Control(parentHWND, 0, 710, 50, 25, sniffPacketsID, L"Button", L"Start");
+    clearLVPackets = new Control(parentHWND, 55, 710, 50, 25, clearLVPacketsID, L"Button", L"Clear");
 
-    CreateWindow(L"static", L"Auto scroll is: ", WS_VISIBLE | WS_CHILD, 110, 455, 90, 25, parentHWND, NULL, NULL, NULL);
-    autoScroll = new Control(parentHWND, 205,450, 25, 25, autoScrollID, L"Button", L"ON");
+    CreateWindow(L"static", L"Auto scroll is: ", WS_VISIBLE | WS_CHILD, 110, 715, 90, 25, parentHWND, NULL, NULL, NULL);
+    autoScroll = new Control(parentHWND, 205,710, 25, 25, autoScrollID, L"Button", L"ON");
 
-    lvFilters = new ListView(parentHWND, 600, 0, 204, 200,lvFiltersID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA);
+    lvFilters = new ListView(parentHWND, 975, 0, 204, 200,lvFiltersID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA);
     lvFilters->setExtendedStyltes(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES | LVS_EX_AUTOSIZECOLUMNS);
     lvFilters->add_column(102, L"Type");
     lvFilters->add_column(102, L"header");
     lvFilters->showLV();
 
-    CreateWindow(L"static", L"Header:", WS_VISIBLE | WS_CHILD, 600, 205, 50, 25, parentHWND, NULL, NULL, NULL);
-    filterTextBox = new Control(parentHWND, 655, 205, 50, 20, filterTextBoxID, L"edit", L"");
-    filterHeader = new Control(parentHWND, 705, 205, 50, 20, filterHeaderID,L"button", L"Filter");
-    blockHeader = new Control(parentHWND, 755, 205, 50, 20, blockHeaderID, L"button", L"Block");
-    launchButton = new Control(parentHWND, 700, 440, 100, 50, launchButtonID, L"button", L"Launch");
+    CreateWindow(L"static", L"Header:", WS_VISIBLE | WS_CHILD, 975, 205, 50, 25, parentHWND, NULL, NULL, NULL);
+    filterTextBox = new Control(parentHWND, 1030, 205, 50, 20, filterTextBoxID, L"edit", L"");
+    filterHeader = new Control(parentHWND, 1075, 205, 50, 20, filterHeaderID,L"button", L"Filter");
+    blockHeader = new Control(parentHWND, 1125, 205, 50, 20, blockHeaderID, L"button", L"Block");
+    launchButton = new Control(parentHWND, 1080, 690, 100, 50, launchButtonID, L"button", L"Launch");
 }
 void addSettingsControl(HWND hwnd)
 {
@@ -651,6 +742,10 @@ Packet processPacketFromTextBox(std::wstring data)
         {
             segBuffer.type = encodeStr;
             segmentString = segmentString.substr(1, segmentString.size() - 2);
+            if (segmentString.empty())
+            {
+                segmentString = L"\"\"";
+            }
             std::vector<BYTE> lastSegment = p.segments.at(p.segments.size() - 1).bytes;
             p.segments.pop_back();
             std::vector<BYTE> stringBytes = wideStringToBytes(segmentString);
@@ -719,4 +814,15 @@ Packet processPacketFromTextBox(std::wstring data)
         }
     }
     return p;
+}
+void draw_text(HDC hdc, RECT& iR, COLORREF color, std::wstring Text) {
+    SIZE sz = { 0 };
+    GetTextExtentPoint32(hdc, Text.c_str(), Text.length(), &sz);
+    SetBkMode(hdc, TRANSPARENT);
+    SetTextColor(hdc, color);
+    DrawText(hdc, Text.c_str(), Text.length(), &iR, DT_LEFT);
+    Text += L" ";
+    SIZE new_sz = { 0 };
+    GetTextExtentPoint32(hdc, Text.c_str(), Text.length(), &new_sz);
+    iR.left += sz.cx;
 }
