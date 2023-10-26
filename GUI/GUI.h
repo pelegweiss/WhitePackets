@@ -1,4 +1,7 @@
 #pragma once
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include <Windows.h>
 #include "controls.h"
 #include <thread>
@@ -7,13 +10,14 @@
 #include "guiFunctions.h"
 #include <chrono>
 #include <sstream>
+#include "Json/json.hpp"
+#include <fstream>
 
-#pragma comment(linker,"\"/manifestdependency:type='win32' \
-name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
-processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+using jsonf = nlohmann::json;
+
 const int height = 800;
 const int width = 1200;
-HMENU hFileMenu, hListViewPacketPopUpMenu, hListViewFiltersPopUpMenu;
+HMENU hFileMenu, hListViewPacketPopUpMenu, hListViewFiltersPopUpMenu,filterMenu;
 HWND parentHWND,settingsHWND;
 LRESULT CALLBACK windowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp);
 LRESULT CALLBACK settingsProcedure(HWND, UINT, WPARAM, LPARAM);
@@ -44,14 +48,15 @@ std::wstring dllPath = L"";
 bool sniff = false;
 enum controlIDs
 {
-	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID,settingsButton,maplestoryPathTextBoxID,dllPathTextBoxID,maplestoryPathButtonID,dllPathButtonID,launchButtonID, removeFilterID,lvPacketsFilterID,lvPacketsBlockID
+	lvPacketID,lvFiltersID, sniffPacketsID, clearLVPacketsID,packetTextBoxID,sendPacketID,recvPacketID,autoScrollID,filterTextBoxID,filterHeaderID,blockHeaderID,settingsButton,maplestoryPathTextBoxID,dllPathTextBoxID,maplestoryPathButtonID,dllPathButtonID,launchButtonID, removeFilterID,lvPacketsFilterID,lvPacketsBlockID,saveFiltersID,loadFiltersID
 };
 
 void pipeHandler();
 
 void draw_text(HDC hdc, RECT& iR, COLORREF color, std::wstring Text);
 std::wstring getTextFromBox(HWND boxHwnd, bool RemoveSpaces);
-std::wstring open_file(HWND hWnd);
+std::wstring open_file(HWND hWnd, const wchar_t* fileFilter);
+std::wstring save_file(HWND hWnd);
 bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);
 void showPopUpMenu(HMENU popUpMenu,HWND mainWindowHWND,LPARAM lowParam);
 Packet processPacketFromTextBox(std::wstring data);

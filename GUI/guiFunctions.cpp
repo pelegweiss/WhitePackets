@@ -108,9 +108,8 @@ void pipeHandler()
 }
 bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
 {
-    const wchar_t* mPath = L"C:\\Users\\Peleg\\Desktop\\Personal\\Heaven.MS.v83.pack\\HeavenMS - Source\\HeavenMS-master\\HeavenMS-master\\MapleStory\\HeavenMS-localhost-WINDOW.exe";
-    const wchar_t* dPath = L"C:\\WhitePackets\\WhitePackets\\Debug\\WhitePackets.dll";
-    ShellExecute(nullptr, L"open", mPath, nullptr, nullptr, SW_SHOWNORMAL);
+
+    ShellExecute(nullptr, L"open", maplestoryPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
     Sleep(1500);
     int i = 0;
     DWORD procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
@@ -130,7 +129,7 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
     {
         std::cout << "Maplestory launched sucssesfully going to inject" << std::endl;
         Sleep(1000);
-        if (inject(L"HeavenMS-localhost-WINDOW.exe", dPath) == true)
+        if (inject(L"HeavenMS-localhost-WINDOW.exe", dllPath.c_str()) == true)
         {
             DWORD tID;
             HANDLE t1 = CreateThread(

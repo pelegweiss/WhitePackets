@@ -31,14 +31,14 @@ LRESULT CALLBACK settingsProcedure(HWND settingsHWND, UINT msg, WPARAM wp, LPARA
             {
                 case maplestoryPathButtonID:
                 {
-                    std::wstring bufferPath = open_file(settingsHWND);
+                    std::wstring bufferPath = open_file(settingsHWND, L"Executables (*.exe)\0*.exe\0");
                     SetWindowText(maplestoryPathTextBox->Get_Hwnd(), bufferPath.c_str());
                     maplestoryPath = bufferPath;
                 }
                 break;
                 case dllPathButtonID:
                 {
-                    std::wstring bufferPath = open_file(settingsHWND);
+                    std::wstring bufferPath = open_file(settingsHWND, L"Dynamic Link Library (*.dll)\0*.dll\0");
                     SetWindowText(dllPathTextBox->Get_Hwnd(), bufferPath.c_str());
                     dllPath = bufferPath;
                 }
@@ -49,6 +49,8 @@ LRESULT CALLBACK settingsProcedure(HWND settingsHWND, UINT msg, WPARAM wp, LPARA
         case WM_CREATE:
         {
             addSettingsControl(settingsHWND);
+            SetWindowText(maplestoryPathTextBox->Get_Hwnd(), maplestoryPath.c_str());
+            SetWindowText(dllPathTextBox->Get_Hwnd(), dllPath.c_str());
         }
         break;
 
@@ -91,32 +93,30 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                                 HBRUSH hBrushBG;
                                 switch ((int)lplvcd->nmcd.dwItemSpec % 2)
                                 {
-                                    case 0:hBrushBG = CreateSolidBrush(RGB(245, 245, 245)); break;
-                                    default: hBrushBG = CreateSolidBrush(RGB(255, 255, 255)); break;
+                                case 0:hBrushBG = CreateSolidBrush(RGB(245, 245, 245)); break;
+                                default: hBrushBG = CreateSolidBrush(RGB(255, 255, 255)); break;
+                                }
+                                if (ListView_GetItemState(lvFilters->Get_Hwnd(), lplvcd->nmcd.dwItemSpec, LVIS_SELECTED))
+                                {
+                                    hBrushBG = CreateSolidBrush(RGB(221, 221, 255));
+                                }
+                                FillRect(lplvcd->nmcd.hdc, &iR, hBrushBG);
+                                std::wstring Text = lvFilters->m_v[lplvcd->nmcd.dwItemSpec][lplvcd->iSubItem];
 
-                                    if (ListView_GetItemState(lvFilters->Get_Hwnd(), lplvcd->nmcd.dwItemSpec, LVIS_SELECTED))
-                                    {
-                                        hBrushBG = CreateSolidBrush(RGB(221, 221, 255));
-                                    }
-                                    FillRect(lplvcd->nmcd.hdc, &iR, hBrushBG);
-                                    std::wstring Text = lvFilters->m_v[lplvcd->nmcd.dwItemSpec][lplvcd->iSubItem];
-
-                                    switch (lplvcd->iSubItem)
-                                    {
-                                        case 0:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
-                                        case 1:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
-                                    }
+                                switch (lplvcd->iSubItem)
+                                {
+                                case 0:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
+                                case 1:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
                                 }
                             }
                             if (wp == (WPARAM)lvPackets->get_ControlID())
                             {
-                                bool isDark = false;
 
                                 HBRUSH hBrushBG;
                                 switch ((int)lplvcd->nmcd.dwItemSpec % 2)
                                 {
                                 case 0:hBrushBG = CreateSolidBrush(RGB(245, 245, 245)); break;
-                                default: hBrushBG = CreateSolidBrush(RGB(255, 255, 255));break;
+                                default: hBrushBG = CreateSolidBrush(RGB(255, 255, 255)); break;
                                 }
                                 if (ListView_GetItemState(lvPackets->Get_Hwnd(), lplvcd->nmcd.dwItemSpec, LVIS_SELECTED))
                                 {
@@ -183,20 +183,20 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                                         if (!data.empty())
                                         {
                                             data.at(data.size() - 1).pop_back(); //removing last space
-                                            COLORREF color = RGB(192,192,220);
+                                            COLORREF color = RGB(192, 192, 220);
                                             for (std::wstring segment : data)
                                             {
                                                 switch (wcslen(segment.c_str()) - 1)
                                                 {
-                                                    case 2: {color = RGB(242, 168, 24); }break; 
-                                                    case 4: {color = RGB(240, 113, 120); }break;
-                                                    case 8: {color = RGB(54, 163, 217); }break;
-                                                    default:
-                                                        bool containsQuote = segment.find(L'"') != std::wstring::npos;
-                                                        if (containsQuote)
-                                                            color = RGB(0, 0, 128);
-                                                        else
-                                                            color = RGB(0, 0, 0);
+                                                case 2: {color = RGB(242, 168, 24); }break;
+                                                case 4: {color = RGB(240, 113, 120); }break;
+                                                case 8: {color = RGB(54, 163, 217); }break;
+                                                default:
+                                                    bool containsQuote = segment.find(L'"') != std::wstring::npos;
+                                                    if (containsQuote)
+                                                        color = RGB(0, 0, 128);
+                                                    else
+                                                        color = RGB(0, 0, 0);
                                                     break;
                                                 }
 
@@ -210,7 +210,6 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                                 }
                             }
                             return CDRF_SKIPDEFAULT;
-
                         }
                     }
                 }
@@ -258,7 +257,6 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                     }
                 }
                 break;
-
             }
             
         }
@@ -269,6 +267,16 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
             {
                 case launchButtonID:
                 {
+                    if (wcscmp(maplestoryPath.c_str(), L"") == 0)
+                    {
+                        MessageBox(parentHWND, L"Maplestory path is missing", L"Failed launching", MB_OK | MB_ICONSTOP);
+                        break;
+                    }
+                    if (wcscmp(dllPath.c_str(), L"") == 0)
+                    {
+                        MessageBox(parentHWND, L"DLL path is missing", L"Failed launching", MB_OK | MB_ICONSTOP);
+                        break;
+                    }
                     const int maxRetries = 3;
                     int retriesCounter = 0;
                     bool launched = false;
@@ -574,28 +582,92 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                     pipeToDLL.sendPacketMessage(message);
                 }
                 break;
+                case saveFiltersID:
+                {
+                    std::wstring file_path = save_file(parentHWND);
+                    if (wcscmp(file_path.c_str(), L"") != 0)
+                    {
+                        jsonf jsonfile;
+                        std::ofstream file(file_path);
+
+                        for (int i = 0; i < lvFilters->m_v.size(); i++)
+                        {
+                            std::wstring type = lvFilters->m_v[i][0];
+                            std::wstring header = lvFilters->m_v[i][1];
+                            jsonfile[i]["header"] = header;
+                            jsonfile[i]["type"] = type;
+
+                        }
+                        file << jsonfile;
+                        file.close();
+                    }
+                }
+                break;
+                case loadFiltersID:
+                {
+                    std::wstring json_path = open_file(parentHWND, L"Json (*.json)\0*.json\0");
+                    if (wcscmp(json_path.c_str(), L"") != 0)
+                    {
+                        std::ifstream f(json_path);
+                        jsonf jsonfile = jsonf::parse(f);
+                        lvFilters->clear_items();
+                        for (int i = 0; i < jsonfile.size(); i++)
+                        {
+
+                            std::wstring type = jsonfile[i].at("type");
+                            std::wstring header = jsonfile[i].at("header");
+                            std::vector<std::wstring> buf;
+                            buf.emplace_back(type);
+                            buf.emplace_back(header);
+                            lvFilters->add_item(buf);
+                        }
+                    }
+                }
+                break;
             }
         }
         break;
         case WM_CREATE:
-        {
+        {            
             addMenus(parentHWND);
             addControls(parentHWND);
+            std::wstring json_path = L"./settings.json";
+            std::ifstream f(json_path);
+            jsonf jsonfile = jsonf::parse(f);
+            std::wstring maplestoryPathBuffer = jsonfile["paths"].at("maplestoryPath");
+            std::wstring dllPathBuffer = jsonfile["paths"].at("dllPath");
+            maplestoryPath = maplestoryPathBuffer;
+            dllPath = dllPathBuffer;
+
         }
         break;
         case WM_DESTROY:
         {
+            std::wstring file_path = L"./settings.json";
+            jsonf jsonfile;
+            std::ofstream file(file_path);
+            if (file.is_open())
+            {
+                std::cout << "File is open" << std::endl;
+                jsonfile["paths"]["maplestoryPath"] = maplestoryPath;
+                jsonfile["paths"]["dllPath"] = dllPath;
+                file << jsonfile;
+                file.close();
+            }
+            else
+            {
+                std::cout << "Something went wrong, couldn't save settings" << std::endl;
+            }
             PostQuitMessage(0);
         }
         break;
         default:
             return DefWindowProc(parentHWND, msg, wp, lp);
     }
-
- 
 }
 void addControls(HWND parentHWND)
 {
+
     lvPackets = new ListView(parentHWND, 0, 0, 970, 665, lvPacketID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA);
     lvPackets->setExtendedStyltes(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES | LVS_EX_AUTOSIZECOLUMNS);
 
@@ -641,8 +713,10 @@ void addSettingsControl(HWND hwnd)
 void addMenus(HWND parenthWnd)
 {
     hFileMenu = CreateMenu();
-    AppendMenu(hFileMenu, MF_STRING, 1, L"Save");
-    AppendMenu(hFileMenu, MF_STRING, 2, L"Load");
+    filterMenu = CreateMenu();
+    AppendMenu(hFileMenu, MF_POPUP, (UINT_PTR)filterMenu, L"Filters");
+    AppendMenu(filterMenu, MF_STRING, saveFiltersID, L"Save");
+    AppendMenu(filterMenu, MF_STRING, loadFiltersID, L"Load");
     AppendMenu(hFileMenu, MF_STRING, settingsButton, L"Settings");
     SetMenu(parenthWnd, hFileMenu);
 
@@ -677,19 +751,43 @@ std::wstring getTextFromBox(HWND boxHwnd, bool RemoveSpaces)
 
     return text;
 }
-std::wstring open_file(HWND hWnd)
+std::wstring save_file(HWND hWnd)
 {
+    WCHAR currentDirectory[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, currentDirectory);
+    OPENFILENAME ofn = { 0 };
+
+    TCHAR szFileName[512] = { 0 };
+
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = hWnd;
+    ofn.lpstrFilter = L"json\0*.json\0";
+    ofn.lpstrFile = (LPWSTR)szFileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
+
+    if (GetSaveFileName(&ofn) == TRUE)
+    {
+        SetCurrentDirectory(currentDirectory);
+        return std::wstring(ofn.lpstrFile);
+
+    }
+    return L"";
+}
+std::wstring open_file(HWND hWnd, const wchar_t* fileFilter)
+{
+    WCHAR currentDirectory[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, currentDirectory);
     OPENFILENAME ofn = { 0 };
     wchar_t szFile[MAX_PATH] = { 0 };
 
     // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
+    ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = hWnd;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrFilter = fileFilter;  // Specify the filter for allowed file types
 
-    // Create a filter string based on the fileType parameter
-     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = nullptr;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = nullptr;
@@ -697,6 +795,7 @@ std::wstring open_file(HWND hWnd)
 
     if (GetOpenFileName(&ofn) == TRUE)
     {
+        SetCurrentDirectory(currentDirectory);
         return std::wstring(ofn.lpstrFile);
     }
     return L"";
