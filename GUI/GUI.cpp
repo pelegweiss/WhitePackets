@@ -1,5 +1,103 @@
 #include "gui.h"
 
+
+WNDPROC g_pfnOrigListViewProc = nullptr; // Original ListView window procedure
+HWND hwndTooltip = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_ALWAYSTIP,
+    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentHWND, NULL, NULL, NULL);
+LRESULT CALLBACK subClassLVPacketsData(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    bool tooltipActive = false;
+    static int hoveredItem = -1;
+
+    switch (uMsg) {
+    case WM_MOUSEMOVE: 
+    {
+        POINT pt;
+        pt.x = GET_X_LPARAM(lParam);
+        pt.y = GET_Y_LPARAM(lParam);
+
+        int newItem = getListViewItemByCords(hwnd, pt);
+
+        if (newItem != hoveredItem) 
+        {
+            // Mouse is not over the previous item, clear the tooltip
+            hoveredItem = newItem;
+
+            if (hoveredItem != -1) {
+                std::wstring itemType = lvPacketsData->m_v[hoveredItem][0];
+                unsigned long long itemValue = 0;
+
+                if (itemType != L"BUFFER") 
+                {
+                    itemValue = std::stoull(lvPacketsData->m_v[hoveredItem][1], 0, 16);
+                }
+                
+                std::wstring tooltipText;
+                if (itemType == L"BYTE") 
+                {
+                    unsigned char val1 = static_cast<unsigned char>(itemValue); // For BYTE (8 bits)
+                    char val2 = static_cast<char>(itemValue); // For BYTE (8 bits)
+                    tooltipText = L"Uint8: " + std::to_wstring(val1) + L"\nInt8: " + std::to_wstring(val2);
+                }
+                else if (itemType == L"WORD") 
+                {
+                    unsigned short val1 = static_cast<unsigned short>(itemValue); // For WORD (16 bits)
+                    short val2 = static_cast<short>(itemValue); // For WORD (16 bits)
+                    tooltipText = L"Uint16: " + std::to_wstring(val1) + L"\nInt16: " + std::to_wstring(val2);
+                }
+                else if (itemType == L"DWORD") 
+                {
+                    unsigned int val1 = static_cast<unsigned int>(itemValue); // For DWORD (32 bits)
+                    int val2 = static_cast<int>(itemValue); // For DWORD (32 bits)
+                    tooltipText = L"Uint32: " + std::to_wstring(val1) + L"\nInt32: " + std::to_wstring(val2);
+                }
+                else if (itemType == L"STRING") 
+                    tooltipText = L"The 2 bytes leading the string represent the length of the string";
+
+                TOOLINFO toolInfo = { sizeof(TOOLINFO) };
+                toolInfo.cbSize = sizeof(TOOLINFO);
+                toolInfo.hwnd = hwnd;
+                toolInfo.uFlags = TTF_SUBCLASS;
+                toolInfo.uId = 0; // Unique identifier for the item
+                toolInfo.lpszText = LPWSTR(tooltipText.c_str());
+                toolInfo.rect = { pt.x, pt.y, pt.x + 50, pt.y + 20 }; // Tooltip display area
+
+                enableToolTip(hwndTooltip, toolInfo);
+                SetTimer(hwnd, 1, 3000, nullptr);
+                tooltipActive = true;
+            }
+            else 
+            {
+                if (tooltipActive) 
+                {
+                    // Deactivate the tooltip if the mouse is not over any item
+                    TOOLINFO toolInfo = { sizeof(TOOLINFO) };
+                    disableToolTip(hwndTooltip, toolInfo);
+                    tooltipActive = false;
+                }
+            }
+        }
+    }
+    break;
+    case WM_TIMER:
+    {
+        // Deactivate the tooltip after the delay
+        if (wParam == 1)
+        {
+            TOOLINFO toolInfo = { sizeof(TOOLINFO) };
+            SendMessage(hwndTooltip, TTM_TRACKACTIVATE, FALSE, LPARAM(&toolInfo));
+            SendMessage(hwndTooltip, TTM_DELTOOL, 0, LPARAM(&toolInfo));
+            tooltipActive = false;
+        }
+    }
+    break;
+    default:
+        return CallWindowProc(g_pfnOrigListViewProc, hwnd, uMsg, wParam, lParam);
+    }
+
+    return 0;
+}
+
 int __stdcall WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow)
 {
     FILE* pFile = nullptr;
@@ -71,8 +169,48 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
     {
         case WM_NOTIFY:
         {
-            switch (((NMHDR*)lp)->code)
+            LPNMHDR pnmh = (LPNMHDR)lp;
+
+            switch (pnmh->code)
             {
+
+                case LVN_GETINFOTIP:
+                {
+                    if (wp == lvPacketsDataID)
+                    {
+                        LPNMLVGETINFOTIP pGetInfoTip = (LPNMLVGETINFOTIP)lp;
+
+                        // Determine the text for the tooltip (customize this as needed)
+                        // In this example, the tooltip text is set to "Tooltip for item X"
+
+                        std::wstring type = lvPacketsData->m_v[pGetInfoTip->iItem][0];
+                        std::wstring value = lvPacketsData->m_v[pGetInfoTip->iItem][1];
+                        std::wstring tooltipText;
+                        unsigned long ulongValue = std::stoul(value,0,16);
+                        if (wcscmp(L"BYTE", type.c_str()) == 0)
+                        {
+                            int8_t val1 = static_cast<int8_t>(ulongValue);
+                            uint8_t val2 = static_cast<uint8_t>(ulongValue);
+                            tooltipText += L"Int8: " + std::to_wstring(val1) + L"\nUInt8: " + std::to_wstring(val2);
+                        }
+                        if (wcscmp(L"WORD", type.c_str()) == 0)
+                        {
+                            int16_t val1 = static_cast<int16_t>(ulongValue);
+                            uint16_t val2 = static_cast<uint16_t>(ulongValue);
+                            tooltipText += L"Int16: " + std::to_wstring(val1) + L"\nUInt16: " + std::to_wstring(val2);
+                        }
+                        if (wcscmp(L"DWORD", type.c_str()) == 0)
+                        {
+                            int val1 = static_cast<int>(ulongValue);
+                            unsigned int val2 = static_cast<unsigned int>(ulongValue);
+                            tooltipText += L"Int32: " + std::to_wstring(val1) + L"\nUInt32: " + std::to_wstring(val2);
+                        }
+                        // Copy the tooltip text into the structure
+                        StringCchCopy(pGetInfoTip->pszText, pGetInfoTip->cchTextMax, tooltipText.c_str());
+                    }
+    
+                }
+                break;
                 case NM_CUSTOMDRAW:
                 {
                     LPNMLVCUSTOMDRAW  lplvcd = (LPNMLVCUSTOMDRAW)lp;
@@ -209,10 +347,33 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                                     break;
                                 }
                             }
+                            if (wp == (WPARAM)lvPacketsData->get_ControlID())
+                            {
+                                HBRUSH hBrushBG;
+                                switch ((int)lplvcd->nmcd.dwItemSpec % 2)
+                                {
+                                case 0:hBrushBG = CreateSolidBrush(RGB(245, 245, 245)); break;
+                                default: hBrushBG = CreateSolidBrush(RGB(255, 255, 255)); break;
+                                }
+                                if (ListView_GetItemState(lvPacketsData->Get_Hwnd(), lplvcd->nmcd.dwItemSpec, LVIS_SELECTED))
+                                {
+                                    hBrushBG = CreateSolidBrush(RGB(221, 221, 255));
+                                }
+                                FillRect(lplvcd->nmcd.hdc, &iR, hBrushBG);
+                                std::wstring Text = lvPacketsData->m_v[lplvcd->nmcd.dwItemSpec][lplvcd->iSubItem];
+
+                                switch (lplvcd->iSubItem)
+                                {
+                                case 0:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
+                                case 1:draw_text(lplvcd->nmcd.hdc, iR, RGB(0, 0, 0), Text); break;
+                                }
+                            }
                             return CDRF_SKIPDEFAULT;
                         }
                     }
                 }
+                break;
+
                 break;
                 case NM_CLICK:
                 {
@@ -234,8 +395,76 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                                     std::wstring data = lvPackets->m_v[iPos][3];
                                     std::wstring finalString = header + L" " + data;
                                     SetWindowText(packetTextBox->Get_Hwnd(), (LPWSTR)finalString.c_str());
+
+                                    lvPacketsData->clear_items();
+                                    Packet p = processPacketFromWstring(finalString);
+                                    for (Segment seg : p.segments)
+                                    {
+                                        switch (seg.type)
+                                        {
+                                        case decode1:
+                                        case encode1:
+                                        {
+                                            std::vector<std::wstring> segString;
+                                            segString.emplace_back(L"BYTE");
+                                            std::reverse(seg.bytes.begin(), seg.bytes.end());
+                                            segString.emplace_back(bytesToWString(seg.bytes));
+                                            lvPacketsData->add_item(segString);                                        
+                                        }
+                                        break;
+                                        case decode2:
+                                        case encode2:
+                                        {
+                                            std::vector<std::wstring> segString;
+                                            segString.emplace_back(L"WORD");
+                                            std::reverse(seg.bytes.begin(), seg.bytes.end());
+                                            segString.emplace_back(bytesToWString(seg.bytes));
+                                            lvPacketsData->add_item(segString);
+                                        }
+                                        break;
+                                        case decode4:
+                                        case encode4:
+                                        {
+                                            std::vector<std::wstring> segString;
+                                            segString.emplace_back(L"DWORD");
+                                            std::reverse(seg.bytes.begin(), seg.bytes.end());
+                                            segString.emplace_back(bytesToWString(seg.bytes));
+                                            lvPacketsData->add_item(segString);                                        
+                                        }
+                                        break;
+                                        case decodeStr:
+                                        case encodeStr:
+                                        {
+                                            std::reverse(seg.bytes.begin(), seg.bytes.begin() + 2);
+                                            std::vector<std::wstring> segString;
+                                            std::vector<BYTE> stringBytes;
+                                            std::vector<BYTE> lengthBytes;
+                                            lengthBytes.insert(lengthBytes.end(), seg.bytes.begin(), seg.bytes.begin() + 2);
+                                            stringBytes.insert(stringBytes.end(), seg.bytes.begin() + 2, seg.bytes.end());
+                                            std::wstring finalString;
+                                            segString.emplace_back(L"STRING");
+                                            finalString += bytesToWString(lengthBytes) + L' ';
+                                            finalString += L'\"' + bytesToActualString(stringBytes) + L'\"';
+                                            segString.emplace_back(finalString);
+                                            lvPacketsData->add_item(segString);                                        
+                                        }
+                                        break;
+                                        case decodeBuffer:
+                                        case encodeBuffer:
+                                        {
+                                            std::vector<std::wstring> segString;
+                                            segString.emplace_back(L"BUFFER");
+                                            segString.emplace_back(bytesToWString(seg.bytes));
+                                            lvPacketsData->add_item(segString);                                        
+                                        }
+                                        break;
+                                        }
+                                    }
+
                                 }
                             }
+
+
                         }
                     }
                 }
@@ -265,6 +494,8 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
         {
             switch (wp)
             {
+
+
                 case launchButtonID:
                 {
                     if (wcscmp(maplestoryPath.c_str(), L"") == 0)
@@ -639,6 +870,9 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
             maplestoryPath = maplestoryPathBuffer;
             dllPath = dllPathBuffer;
 
+            SubclassListView(lvPacketsData->Get_Hwnd());
+
+
         }
         break;
         case WM_DESTROY:
@@ -696,8 +930,15 @@ void addControls(HWND parentHWND)
 
     CreateWindow(L"static", L"Header:", WS_VISIBLE | WS_CHILD, 975, 205, 50, 25, parentHWND, NULL, NULL, NULL);
     filterTextBox = new Control(parentHWND, 1030, 205, 50, 20, filterTextBoxID, L"edit", L"");
-    filterHeader = new Control(parentHWND, 1075, 205, 50, 20, filterHeaderID,L"button", L"Filter");
-    blockHeader = new Control(parentHWND, 1125, 205, 50, 20, blockHeaderID, L"button", L"Block");
+    filterHeader = new Control(parentHWND, 1080, 205, 50, 20, filterHeaderID,L"button", L"Filter");
+    blockHeader = new Control(parentHWND, 1130, 205, 50, 20, blockHeaderID, L"button", L"Block");
+
+    lvPacketsData = new ListView(parentHWND, 975, 230, 204, 435, lvPacketsDataID, WS_VISIBLE | WS_CHILD | WS_BORDER | LVS_REPORT | LVS_OWNERDATA);
+    lvPacketsData->setExtendedStyltes(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_GRIDLINES | LVS_EX_AUTOSIZECOLUMNS);
+    lvPacketsData->m_scroll = false;
+    lvPacketsData->add_column(102, L"Type");
+    lvPacketsData->add_column(500, L"Data");
+
     launchButton = new Control(parentHWND, 1080, 690, 100, 50, launchButtonID, L"button", L"Launch");
 }
 void addSettingsControl(HWND hwnd)
@@ -822,7 +1063,119 @@ void showPopUpMenu(HMENU popUpMenu, HWND mainWindowHWND,LPARAM lowParam)
         TrackPopupMenu(popUpMenu, TPM_BOTTOMALIGN | TPM_LEFTALIGN, cursor.x, cursor.y, 0, mainWindowHWND, NULL);
     }
 }
+Packet processPacketFromWstring(std::wstring data)
+{
+    std::wistringstream stream(data);
+    std::wstring segmentString;
+    wchar_t delimiter = L' ';
+    Packet p;
+    p.callerAddress = 0;
+    std::wstring header = data.substr(0, 4);
+    p.header = std::stoul(header, 0, 16);
+    while (std::getline(stream, segmentString, delimiter))
+    {
+        if (segmentString.empty())
+            continue;
+        segmentString.erase(std::remove_if(segmentString.begin(), segmentString.end(), [](char c) { return c == '\r' || c == '\n'; }), segmentString.end());
+        Segment segBuffer;
 
+        if (segmentString.front() == L'"') //its a string
+        {
+            std::vector<BYTE> finalBytes;
+            std::vector<BYTE> lastSegment = p.segments.at(p.segments.size() - 1).bytes;
+            p.segments.pop_back();
+            segBuffer.type = encodeStr;
+            segmentString = segmentString.substr(1); //removes the first double mark qouate
+            if (segmentString.back() == L'"')
+            {
+                segmentString = segmentString.substr(0, segmentString.size() - 1); //remove the last double mark qouate 
+
+                finalBytes.insert(finalBytes.end(), lastSegment.begin(), lastSegment.end());
+                if (!segmentString.empty())
+                {
+                    std::vector<BYTE> stringBytes = wideStringToBytes(segmentString);
+                    finalBytes.insert(finalBytes.end(), stringBytes.begin(), stringBytes.end());
+                }
+
+            }
+            else
+            {
+                    std::wstring finalString = segmentString;
+                    while (segmentString.back() != L'"')
+                    {
+                        stream >> segmentString;
+                        finalString += L' ' + segmentString;
+                    }
+                    finalString = finalString.substr(0, finalString.length() - 1);
+                    std::vector<BYTE> stringBytes = wideStringToBytes(finalString);
+                    finalBytes.insert(finalBytes.end(), lastSegment.begin(), lastSegment.end());
+                    finalBytes.insert(finalBytes.end(), stringBytes.begin(), stringBytes.end());
+
+            }
+            segBuffer.bytes = finalBytes;
+            p.segments.emplace_back(segBuffer);
+        }
+
+
+        else if (segmentString.front() == L'<')
+        {
+            segBuffer.type = encodeBuffer;
+            segmentString = segmentString.substr(1, segmentString.size() - 2);
+            std::vector<BYTE> bufferBytes;
+
+            for (size_t i = 0; i < segmentString.length(); i += 2) {
+                std::wstring subStr = segmentString.substr(i, 2);
+
+                // Convert the string to a BYTE
+                BYTE num = std::stoul(subStr, 0, 16);
+                bufferBytes.insert(bufferBytes.end(), reinterpret_cast<BYTE*>(&num), reinterpret_cast<BYTE*>(&num) + sizeof(BYTE));
+            }
+            segBuffer.bytes = bufferBytes;
+            p.segments.emplace_back(segBuffer);
+
+
+        }
+        else
+        {
+            int dataLen = wcslen(segmentString.c_str());
+            switch (dataLen)
+            {
+            case 2:
+            {
+                segBuffer.type = encode1;
+                BYTE b = std::stoul(segmentString, 0, 16);
+                std::vector<BYTE> data;
+                data.insert(data.end(), reinterpret_cast<BYTE*>(&b), reinterpret_cast<BYTE*>(&b) + sizeof(BYTE));
+                segBuffer.bytes = data;
+
+            }
+            break;
+            case 4:
+            {
+                segBuffer.type = encode2;
+                WORD w = std::stoul(segmentString, 0, 16);
+                std::vector<BYTE> data;
+                data.insert(data.end(), reinterpret_cast<BYTE*>(&w), reinterpret_cast<BYTE*>(&w) + sizeof(WORD));
+                segBuffer.bytes = data;
+            }
+            break;
+            case 8:
+            {
+                segBuffer.type = encode4;
+                DWORD dw = std::stoul(segmentString, 0, 16);
+                std::vector<BYTE> data;
+                data.insert(data.end(), reinterpret_cast<BYTE*>(&dw), reinterpret_cast<BYTE*>(&dw) + sizeof(DWORD));
+                segBuffer.bytes = data;
+            }
+            break;
+            }
+            p.segments.emplace_back(segBuffer);
+
+
+        }
+    }
+    return p;
+}
 Packet processPacketFromTextBox(std::wstring data)
 {
     std::wistringstream stream(data);
@@ -924,4 +1277,32 @@ void draw_text(HDC hdc, RECT& iR, COLORREF color, std::wstring Text) {
     SIZE new_sz = { 0 };
     GetTextExtentPoint32(hdc, Text.c_str(), Text.length(), &new_sz);
     iR.left += sz.cx;
+}
+
+void SubclassListView(HWND hwndListView)
+{
+    // Save the original window procedure
+    g_pfnOrigListViewProc = (WNDPROC)SetWindowLongPtr(hwndListView, GWLP_WNDPROC, (LONG_PTR)subClassLVPacketsData);
+}
+
+int getListViewItemByCords(HWND listViewHwnd,POINT pt)
+{
+    LVHITTESTINFO hitTestInfo;
+    hitTestInfo.pt = pt;
+    return ListView_SubItemHitTest(listViewHwnd, &hitTestInfo);
+}
+
+
+
+void enableToolTip(HWND hwndToolTip, TOOLINFO toolInfo)
+{
+    SendMessage(hwndToolTip, TTM_SETMAXTIPWIDTH, 0, 300); // Adjust the width as needed
+    SendMessage(hwndToolTip, TTM_ADDTOOL, 0, LPARAM(&toolInfo));
+    SendMessage(hwndToolTip, TTM_TRACKACTIVATE, TRUE, LPARAM(&toolInfo));
+    SendMessage(hwndToolTip, TTM_UPDATETIPTEXT, 0, LPARAM(&toolInfo));
+}
+void disableToolTip(HWND hwndToolTip, TOOLINFO toolInfo)
+{
+    SendMessage(hwndToolTip, TTM_TRACKACTIVATE, FALSE, LPARAM(&toolInfo));
+    SendMessage(hwndToolTip, TTM_DELTOOL, 0, LPARAM(&toolInfo));
 }
