@@ -94,6 +94,7 @@ void messageHandler(pipeMessage message)
             case 1:blockedHeaders.emplace_back(h.header); break;
             }
         }
+        break;
         case injectOutPacket:
         {
             Packet p = processPacketMessage(message);

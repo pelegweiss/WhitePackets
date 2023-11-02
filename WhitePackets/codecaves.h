@@ -3,8 +3,6 @@
 #include "windows.h"
 
 
-Packet packet;
-Packet injectedPacket;
 
 void __fastcall sniff_send(void* ecx, void* edx, COutPacket* p);
 bool __fastcall sniff_recv(void* ecx, void* edx,DWORD address, CInPacket* p);
