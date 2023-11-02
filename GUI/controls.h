@@ -23,8 +23,8 @@ public:
 class Control
 {
 protected:
-	HWND hWnd;
-	HMENU ControlID;
+	HWND hWnd{};
+	HMENU ControlID{};
 public:
 	HWND Get_Hwnd();
 	HMENU get_ControlID();
@@ -32,6 +32,7 @@ public:
 	Control(HWND hwndParent, int x1, int y1, int x2, int y2, int id, LPCWSTR type, LPCWSTR Text);
 	Control(HWND hwndParent, int x1, int y1, int x2, int y2, int id, LPCWSTR type, LPCWSTR Text, DWORD styles);
 };
+
 class ListView : public Control
 {
 

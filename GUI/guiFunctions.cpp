@@ -106,50 +106,47 @@ void pipeHandler()
     CloseHandle(pipeToDLL.hNamedPipe);
     isPipeToDLLConnected = false;
 }
-bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
-{
-
+bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
+    // Launch Maplestory
     ShellExecute(nullptr, L"open", maplestoryPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-    Sleep(1500);
-    int i = 0;
-    DWORD procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
-    while (procID == NULL && i < 10)
-    {
-        Sleep(50);
-        i++;
-        procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
 
+    // Check if the process has started
+    int retries = 0;
+    const int maxRetries = 10;
+    DWORD procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
+
+    while (procID == NULL && retries < maxRetries) {
+        Sleep(100);
+        procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
+        retries++;
     }
-    if (i == 10)
-    {
+
+    if (retries == maxRetries) {
         std::cout << "Failed to launch" << std::endl;
         return false;
     }
-    else
-    {
-        std::cout << "Maplestory launched sucssesfully going to inject" << std::endl;
-        Sleep(1000);
-        if (inject(L"HeavenMS-localhost-WINDOW.exe", dllPath.c_str()) == true)
-        {
+    else {
+        std::cout << "Maplestory launched successfully, preparing for injection" << std::endl;
+
+        if (inject(L"HeavenMS-localhost-WINDOW.exe", dllPath.c_str())) {
             DWORD tID;
             HANDLE t1 = CreateThread(
                 0,
-               0,
+                0,
                 (LPTHREAD_START_ROUTINE)pipeHandler,
                 0,
                 0,
                 &tID
             );
+
+            // Create pipe and connect to client
             pipeToDLL.createPipe();
             pipeToDLL.waitForClient();
             isPipeToDLLConnected = true;
-                    
 
-
-            for (int i = 0; i < blockedHeaders.size(); i++)
-            {
+            // Send blocked headers
+            for (int i = 0; i < blockedHeaders.size(); i++) {
                 WORD wordValue = blockedHeaders.at(i);
-                void* voidPointer = (void*)&wordValue; // Casting DWORD to void*
                 pipeMessage message;
                 Header h;
                 h.action = 1;
@@ -160,11 +157,9 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath)
             }
             return true;
         }
-        else
-        {
+        else {
             std::cout << "Failed injecting DLL" << std::endl;
             return false;
-
         }
     }
 }

@@ -145,6 +145,7 @@
     <ClCompile Include="encoding.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="guiFunctions.cpp" />
+    <ClCompile Include="guiHelper.cpp" />
     <ClCompile Include="injector.cpp" />
     <ClCompile Include="Pipe.cpp" />
   </ItemGroup>
@@ -153,6 +154,7 @@
     <ClInclude Include="encoding.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="guiFunctions.h" />
+    <ClInclude Include="guiHelper.h" />
     <ClInclude Include="injector.h" />
     <ClInclude Include="Pipe.h" />
   </ItemGroup>
