@@ -1,12 +1,17 @@
 # WhitePackets
 
-WhitePackets is a packet sniffer and simulator for MapleStory V83, allowing users to intercept and manipulate network packets exchanged between the client and server.
+WhitePackets is a feature-rich packet sniffer and simulator for MapleStory V83, offering a range of capabilities to enhance packet analysis and manipulation.
 
 ## Features
 
 - **Packet Sniffing:** Capture and analyze network packets between the MapleStory client and server.
 - **Packet Simulation:** Simulate custom packets to manipulate the game's communication flow.
+- **Dynamic DLL Injection:** Easily inject the required DLL into the MapleStory process by specifying the game's path and the DLL's path. The built-in DLL injector streamlines the injection process, eliminating the need for external tools.
+- **Path Configuration:** Configure paths for the game and DLL directly through the GUI, simplifying setup and ensuring a smooth user experience.
 - **Byte Group Colorization:** Enhance readability by presenting raw strings instead of byte representations and colorizing different groups of bytes related to each other. Each color corresponds to a specific group, providing a visual representation of packet structures.
+- **Filtering:** Prevent the display of specific packets with a given header, allowing users to focus on relevant information.
+- **Blocking:** Prevent the client from handling incoming packets with a particular header specified by the user, providing control over packet processing.
+- **Filter Management:** Save and load filters for convenient and efficient usage in future sessions.
 
 ## HeavenMS
 
