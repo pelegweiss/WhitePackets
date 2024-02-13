@@ -3,8 +3,7 @@
 #include <windows.h>
 #include <vector>
 #include <thread>
-//#include <Pipe/Pipe.h>
-#include "Pipe.h"
+#include <Pipe/Pipe.h>
 void mainLogic();
 void pipeHandler();
 void messageHandler(pipeMessage message);

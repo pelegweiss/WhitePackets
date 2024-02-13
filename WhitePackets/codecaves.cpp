@@ -4,8 +4,7 @@
 #include "hook.h"
 #include "addresses.h"
 #include <vector>
-//#include "Pipe/Pipe.h"
-#include "Pipe.h"
+#include "Pipe/Pipe.h"
 
 WORD bytesToWord(const std::vector<BYTE>& bytes) {
 	if (bytes.size() < sizeof(WORD)) {

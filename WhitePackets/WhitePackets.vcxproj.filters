@@ -22,9 +22,6 @@
     <Filter Include="hook">
       <UniqueIdentifier>{45bbc39a-1da4-4f61-bbc6-c0a284b81c6b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pipe">
-      <UniqueIdentifier>{bfd40ee3-c07b-485c-be40-0e0d6eea70f4}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -48,9 +45,6 @@
     <ClInclude Include="structs.h">
       <Filter>internals</Filter>
     </ClInclude>
-    <ClInclude Include="Pipe.h">
-      <Filter>pipe</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -67,9 +61,6 @@
     </ClCompile>
     <ClCompile Include="codecaves.cpp">
       <Filter>internals</Filter>
-    </ClCompile>
-    <ClCompile Include="Pipe.cpp">
-      <Filter>pipe</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
