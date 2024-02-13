@@ -52,8 +52,12 @@ git clone https://github.com/your-username/WhitePackets.git
    - WhitePackets/DLL/WhitePackets.sln: Solution file for the DLL.
 
    - WhitePackets/GUI/GUI.sln: Solution file for the executable (GUI).
+3. **Set Additional Library Directories:**
+   - Open the WhitePackets & GUI solution in Visual Studio.
+   - Navigate to Project Properties -> Configuration Properties -> VC++ Directories.
+   - Set "$(SolutionDir)\Dependencies" for the "Additional Library Directories" parameter.
 
-3.**Compile for x86:**
+4.**Compile for x86:**
     - For both solutions, ensure that you are compiling for the target machine architecture of x86.
 
 **Build the solutions to generate the executable and DLL.**
