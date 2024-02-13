@@ -49,9 +49,9 @@ git clone https://github.com/your-username/WhitePackets.git
 
    - Navigate to the cloned directory and open the following solution files using Visual Studio or your preferred IDE:
 
-   - WhitePackets/DLL/WhitePackets.sln: Solution file for the executable (GUI).
+   - WhitePackets/DLL/WhitePackets.sln: Solution file for the DLL.
 
-   - WhitePackets/GUI/GUI.sln: Solution file for the DLL.
+   - WhitePackets/GUI/GUI.sln: Solution file for the executable (GUI).
 
 3.**Compile for x86:**
     - For both solutions, ensure that you are compiling for the target machine architecture of x86.
