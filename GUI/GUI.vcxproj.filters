@@ -22,9 +22,6 @@
     <Filter Include="guiFunctions">
       <UniqueIdentifier>{8516f33c-03a4-4686-8de7-2603eb59c417}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pipe">
-      <UniqueIdentifier>{54c2104a-ce02-4c4a-b39e-40850d32e4b2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="encoding">
       <UniqueIdentifier>{b1900738-d48d-450a-9e00-208c45887df5}</UniqueIdentifier>
     </Filter>
@@ -41,9 +38,6 @@
     </ClCompile>
     <ClCompile Include="guiFunctions.cpp">
       <Filter>guiFunctions</Filter>
-    </ClCompile>
-    <ClCompile Include="Pipe.cpp">
-      <Filter>pipe</Filter>
     </ClCompile>
     <ClCompile Include="encoding.cpp">
       <Filter>encoding</Filter>
@@ -64,9 +58,6 @@
     </ClInclude>
     <ClInclude Include="guiFunctions.h">
       <Filter>guiFunctions</Filter>
-    </ClInclude>
-    <ClInclude Include="Pipe.h">
-      <Filter>pipe</Filter>
     </ClInclude>
     <ClInclude Include="encoding.h">
       <Filter>encoding</Filter>

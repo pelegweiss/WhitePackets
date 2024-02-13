@@ -3,6 +3,10 @@
 #include <iostream>
 #include <codecvt>
 #include <vector>
+enum messagesTypes
+{
+    bHeader = 0, outGoingPacket, inGoingPacket,injectOutPacket,injectInPacket
+};
 enum encodingTypes
 {
     encode1 = 1, encode2 = 2, encode4 = 4, encodeStr = 5, encodeBuffer = 6, decode1 = 7, decode2 = 8, decode4 = 9, decodeStr = 10, decodeBuffer = 11
@@ -19,10 +23,15 @@ struct Packet
     std::vector<Segment> segments;
 
 };
+struct Header
+{
+    int action;
+    WORD header;
+};
 struct pipeMessage
 {
-    int id;           // ID field
-    Packet data;
+    int id;
+    void* data;
 };
 class Pipe
 {
@@ -34,7 +43,8 @@ public:
     bool createPipe();
     bool waitForClient();
     bool connectPipe();
-    pipeMessage readMessage();
-    bool sendMessage(const pipeMessage& message);
+    pipeMessage readPipeMessage();
+    bool sendPacketMessage(const pipeMessage& message);
+    bool sendBlockHeaderMessage(const pipeMessage& message);
 
 };

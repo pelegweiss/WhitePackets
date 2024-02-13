@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include "controls.h"
-#include "Pipe.h"
+#include "Pipe/Pipe.h"
 //ListView functions
 bool isHeaderFiltered(std::vector<std::wstring> buf, ListView* lv);
 void SubclassListView(HWND hwndListView, WNDPROC& g_pfnOrigListViewProc, LONG_PTR subClassLVPacketsData);

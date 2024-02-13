@@ -1,7 +1,7 @@
 #include <vector>
 #include <string>
 #include "controls.h"
-#include "Pipe.h"
+#include "Pipe/Pipe.h"
 #include <sstream>
 #include "encoding.h"
 #include <strsafe.h>
