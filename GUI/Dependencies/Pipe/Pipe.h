@@ -5,7 +5,7 @@
 #include <vector>
 enum messagesTypes
 {
-    bHeader = 0, outGoingPacket, inGoingPacket,injectOutPacket,injectInPacket
+    bHeader = 0, outGoingPacket, inGoingPacket
 };
 enum encodingTypes
 {
@@ -46,5 +46,4 @@ public:
     pipeMessage readPipeMessage();
     bool sendPacketMessage(const pipeMessage& message);
     bool sendBlockHeaderMessage(const pipeMessage& message);
-
 };

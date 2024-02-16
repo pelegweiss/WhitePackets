@@ -1,4 +1,5 @@
 #include "gui.h"
+#include <filesystem>
 
 
 LRESULT CALLBACK lvPacketsDataProcedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -440,7 +441,7 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                 std::wstring data = getTextFromBox(packetTextBox->Get_Hwnd(), false);
                 pipeMessage message;
                 Packet p = WstringToPacket(data);//processPacketFromTextBox(data);
-                message.id = injectOutPacket;
+                message.id = outGoingPacket;
                 message.data = &p;
                 pipeToDLL.sendPacketMessage(message);
             }
@@ -450,7 +451,7 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                 std::wstring data = getTextFromBox(packetTextBox->Get_Hwnd(), false);
                 pipeMessage message;
                 Packet p = WstringToPacket(data);//processPacketFromTextBox(data);
-                message.id = injectInPacket;
+                message.id = inGoingPacket;
                 message.data = &p;
                 pipeToDLL.sendPacketMessage(message);
             }
@@ -504,13 +505,22 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
     {
         addMenus(parentHWND);
         addControls(parentHWND);
-        std::wstring json_path = L"./settings.json";
-        std::ifstream f(json_path);
-        jsonf jsonfile = jsonf::parse(f);
-        std::wstring maplestoryPathBuffer = jsonfile["paths"].at("maplestoryPath");
-        std::wstring dllPathBuffer = jsonfile["paths"].at("dllPath");
-        maplestoryPath = maplestoryPathBuffer;
-        dllPath = dllPathBuffer;
+        std::filesystem::path exePath = std::filesystem::current_path();
+        std::filesystem::path settingsFilePath = exePath / "settings.json";
+        if (std::filesystem::exists(settingsFilePath)) {
+            std::cout << "settings.json file found!" << std::endl;
+            std::ifstream f(settingsFilePath);
+            jsonf jsonfile = jsonf::parse(f);
+            std::wstring maplestoryPathBuffer = jsonfile["paths"].at("maplestoryPath");
+            std::wstring dllPathBuffer = jsonfile["paths"].at("dllPath");
+            maplestoryPath = maplestoryPathBuffer;
+            dllPath = dllPathBuffer;
+        }
+        else {
+            std::cout << "settings.json file not found." << std::endl;
+            // Add your logic here for when the file does not exist.
+        }
+
 
         SubclassListView(lvPacketsData->Get_Hwnd(), ogLvPacketsDataProcedure, (LONG_PTR)lvPacketsDataProcedure);
     }
@@ -518,11 +528,11 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
     case WM_DESTROY:
     {
         // Define the file path
-        std::wstring file_path = L"./settings.json";
-
+        std::filesystem::path exePath = std::filesystem::current_path();
+        std::filesystem::path settingsFilePath = exePath / "settings.json";
         // Create JSON object and output file
         jsonf jsonfile;
-        std::ofstream file(file_path);
+        std::ofstream file(settingsFilePath);
 
         if (!file.is_open())
         {

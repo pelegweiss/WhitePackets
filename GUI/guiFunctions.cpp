@@ -89,22 +89,28 @@ void messagesHandler(pipeMessage message)
 void pipeHandler()
 {
     std::this_thread::sleep_for(std::chrono::seconds(3));
-
-    while (!pipeToGui.connectPipe())
+    bool isConnected = pipeToGui.connectPipe();
+    if (!isConnected)
     {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    pipeMessage message = pipeToGui.readPipeMessage();
-    while (message.id != -1)
-    {
+        std::cout << "Failed connecting, please restart the program";
 
-        messagesHandler(message);
-        delete[] message.data;
-        message = pipeToGui.readPipeMessage();
     }
-    std::cout << "Connection ended, pipe is no longer exist" << std::endl;
-    CloseHandle(pipeToDLL.hNamedPipe);
-    isPipeToDLLConnected = false;
+    else
+    {
+        pipeMessage message = pipeToGui.readPipeMessage();
+        while (message.id != -1)
+        {
+
+            messagesHandler(message);
+            delete[] message.data;
+            message = pipeToGui.readPipeMessage();
+        }
+        CloseHandle(pipeToDLL.hNamedPipe);
+        isPipeToDLLConnected = false;
+        std::cout << "Connection ended, pipe is no longer exist" << std::endl;
+    }
+
+
 }
 bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
     // Launch Maplestory
@@ -113,6 +119,7 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
     // Check if the process has started
     int retries = 0;
     const int maxRetries = 10;
+    
     DWORD procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
 
     while (procID == NULL && retries < maxRetries) {
@@ -141,9 +148,7 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
 
             // Create pipe and connect to client
             pipeToDLL.createPipe();
-            pipeToDLL.waitForClient();
-            isPipeToDLLConnected = true;
-
+            isPipeToDLLConnected = pipeToDLL.waitForClient();
             // Send blocked headers
             for (int i = 0; i < blockedHeaders.size(); i++) {
                 WORD wordValue = blockedHeaders.at(i);

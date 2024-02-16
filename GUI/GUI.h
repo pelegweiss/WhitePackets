@@ -8,7 +8,6 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "Json/json.hpp"
 #include <fstream>
 #include "guiHelper.h"
-
 #include <iostream>
 
 using jsonf = nlohmann::json;
