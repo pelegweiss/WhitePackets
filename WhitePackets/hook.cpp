@@ -1,4 +1,7 @@
 #include "hook.h"
+#include <iostream>
+typedef BOOL (WINAPI* dVProtect)(LPVOID, SIZE_T, DWORD, PDWORD);
+
 Hook::Hook(BYTE* src, BYTE* dst, uintptr_t len)
 {
     this->src = src;
@@ -30,12 +33,13 @@ void Hook::Toggle()
 
 bool Hook::Detour32(BYTE* src, BYTE* dst, const uintptr_t len)
 {
+    dVProtect dVProtectPtr= (dVProtect)GetProcAddress(GetModuleHandle(L"Kernel32.dll"), "VirtualProtect");
     if (len < 5) {
         return false;
     }
 
     DWORD curProtection;
-    VirtualProtect(src, len, PAGE_EXECUTE_READWRITE, &curProtection);
+    dVProtectPtr(src, len, PAGE_EXECUTE_READWRITE, &curProtection);
     uintptr_t relatveAddress = dst - src - 5;
     *src = 0xE9;
     *(uintptr_t*)(src + 1) = relatveAddress;
@@ -44,6 +48,6 @@ bool Hook::Detour32(BYTE* src, BYTE* dst, const uintptr_t len)
     {
         *(src + 5 + i) = 0x90;
     }
-    VirtualProtect(src, len, curProtection, &curProtection);
+    dVProtectPtr(src, len, curProtection, &curProtection);
     return true;
 }

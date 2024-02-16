@@ -95,14 +95,14 @@ void messageHandler(pipeMessage message)
             }
         }
         break;
-        case injectOutPacket:
+        case outGoingPacket:
         {
             Packet p = processPacketMessage(message);
             injectedPacket = p;
             SendPacket(p);
 ;       }
         break;
-        case injectInPacket:
+        case inGoingPacket:
         {
             Packet p = processPacketMessage(message);
             injectedPacket = p;
