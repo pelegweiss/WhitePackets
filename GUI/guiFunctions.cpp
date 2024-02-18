@@ -2,7 +2,7 @@
 #include <sstream>
 #include "controls.h"
 #include <iomanip>
-
+#include <filesystem>
 
 Pipe pipeToGui(L"pipeToGui");
 Pipe pipeToDLL(L"pipeToDLL");
@@ -114,17 +114,21 @@ void pipeHandler()
 }
 bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
     // Launch Maplestory
+    std::wstring processToInject = L"HeavenMS-localhost-WINDOW.exe";
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    std::filesystem::path filePath(maplestoryPath);
+    SetCurrentDirectory(filePath.parent_path().wstring().c_str());
     ShellExecute(nullptr, L"open", maplestoryPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-
+    SetCurrentDirectory(currentPath.wstring().c_str());
     // Check if the process has started
     int retries = 0;
     const int maxRetries = 10;
     
-    DWORD procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
+    DWORD procID = GetProcId(processToInject.c_str());//L"HeavenMS-localhost-WINDOW.exe");
 
     while (procID == NULL && retries < maxRetries) {
         Sleep(100);
-        procID = GetProcId(L"HeavenMS-localhost-WINDOW.exe");
+        procID = GetProcId(processToInject.c_str());//L"HeavenMS-localhost-WINDOW.exe");
         retries++;
     }
 
@@ -135,7 +139,7 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
     else {
         std::cout << "Maplestory launched successfully, preparing for injection" << std::endl;
 
-        if (inject(L"HeavenMS-localhost-WINDOW.exe", dllPath.c_str())) {
+        if (inject(processToInject.c_str(), dllPath.c_str())) {
             DWORD tID;
             HANDLE t1 = CreateThread(
                 0,

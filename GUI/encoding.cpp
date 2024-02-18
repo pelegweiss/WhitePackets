@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 #include "Pipe/Pipe.h"
+
 std::wstring toHexString(const std::vector<BYTE>& bytes) {
     std::wstringstream ss;
     for (size_t i = 0; i < bytes.size(); ++i) {
