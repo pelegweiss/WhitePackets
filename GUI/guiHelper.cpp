@@ -220,9 +220,7 @@ Packet WstringToPacket(std::wstring data) {
     wchar_t delimiter = L' ';
     Packet p;
     p.callerAddress = 0;
-    std::wstring header = data.substr(0, 4);
-    p.header = std::stoul(header, 0, 16);
-
+    std::wstring header = L"";
     while (std::getline(stream, segmentString, delimiter)) {
         if (segmentString.empty()) continue;
         segmentString.erase(std::remove_if(segmentString.begin(), segmentString.end(), [](wchar_t c) {
