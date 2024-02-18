@@ -152,8 +152,10 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="hook.h" />
     <ClInclude Include="logic.h" />
+    <ClInclude Include="myAPI.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="string.h" />
+    <ClInclude Include="PE_header_structs.h" />
+    <ClInclude Include="strings.h" />
     <ClInclude Include="structs.h" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +163,7 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="hook.cpp" />
     <ClCompile Include="logic.cpp" />
+    <ClCompile Include="myAPI.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

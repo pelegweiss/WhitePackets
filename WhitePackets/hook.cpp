@@ -1,6 +1,7 @@
 #include "hook.h"
 #include <iostream>
-#include "string.h"
+#include "strings.h"
+#include "myAPI.h"
 typedef BOOL (WINAPI* dVProtect)(LPVOID, SIZE_T, DWORD, PDWORD);
 
 Hook::Hook(BYTE* src, BYTE* dst, uintptr_t len)
@@ -34,8 +35,8 @@ void Hook::Toggle()
 
 bool Hook::Detour32(BYTE* src, BYTE* dst, const uintptr_t len)
 {
-    DecryptXOR((char*)pLoad, pLoadLen, eKey, eKeyLen);
-    dVProtect dVProtectPtr= (dVProtect)GetProcAddress(GetModuleHandle(L"Kernel32.dll"), (char*)pLoad);
+    DecryptXOR((char*)vAllocEncrypted, vAllocEncryptedLen, eKey, eKeyLen);
+    dVProtect dVProtectPtr = (dVProtect)myGetProcAddress(myGetModuleHandle(L"Kernel32.dll"), "VirtualAlloc");
     if (len < 5) {
         return false;
     }

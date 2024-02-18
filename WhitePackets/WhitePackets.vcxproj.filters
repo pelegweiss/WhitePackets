@@ -25,6 +25,9 @@
     <Filter Include="strings">
       <UniqueIdentifier>{bace67ba-8d1a-431f-8233-57056bfd23a7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="myAPI">
+      <UniqueIdentifier>{052f0c98-ff05-4486-b623-37d4e7cb43b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -48,8 +51,14 @@
     <ClInclude Include="structs.h">
       <Filter>internals</Filter>
     </ClInclude>
-    <ClInclude Include="string.h">
+    <ClInclude Include="strings.h">
       <Filter>strings</Filter>
+    </ClInclude>
+    <ClInclude Include="myAPI.h">
+      <Filter>myAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="PE_header_structs.h">
+      <Filter>myAPI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +79,9 @@
     </ClCompile>
     <ClCompile Include="strings.cpp">
       <Filter>strings</Filter>
+    </ClCompile>
+    <ClCompile Include="myAPI.cpp">
+      <Filter>myAPI</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
