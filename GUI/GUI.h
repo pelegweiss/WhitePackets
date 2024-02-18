@@ -49,6 +49,8 @@ Control* dllPathTextBox;
 Control* dllPathButton;
 Control* maplestoryPathButton;
 Control* launchButton;
+Control* autoInject;
+Control* injectButton;
 Control* lvPacketsDataToolTip;
 
 bool isSettingsOpen = false;
@@ -57,7 +59,7 @@ std::wstring dllPath = L"";
 bool sniff = false;
 enum controlIDs
 {
-	lvPacketID, lvFiltersID, sniffPacketsID, clearLVPacketsID, packetTextBoxID, sendPacketID, recvPacketID, autoScrollID, filterTextBoxID, filterHeaderID, blockHeaderID, settingsButton, maplestoryPathTextBoxID, dllPathTextBoxID, maplestoryPathButtonID, dllPathButtonID, launchButtonID, removeFilterID, lvPacketsFilterID, lvPacketsBlockID, saveFiltersID, loadFiltersID, lvPacketsDataID
+	lvPacketID, lvFiltersID, sniffPacketsID, clearLVPacketsID, packetTextBoxID, sendPacketID, recvPacketID, autoScrollID, filterTextBoxID, filterHeaderID, blockHeaderID, settingsButton, maplestoryPathTextBoxID, dllPathTextBoxID, maplestoryPathButtonID, dllPathButtonID, launchButtonID, removeFilterID, lvPacketsFilterID, lvPacketsBlockID, saveFiltersID, loadFiltersID, lvPacketsDataID,autoInjectID,injectButtonID
 };
 
 std::vector<WORD> blockedHeaders;

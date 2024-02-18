@@ -344,7 +344,7 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
             {
                 if (settingsWindow->isCreated() == false)
                 {
-                    settingsWindow->createWindow(L"SettingsWindowClass", 150, 150, 425, 120);
+                    settingsWindow->createWindow(L"Settings", 150, 150, 425, 170);
                 }
 
             }
@@ -498,6 +498,42 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                 }
             }
             break;
+            case injectButtonID:
+            {
+                std::wstring processToInject = L"mr.dll";
+                if (inject(processToInject.c_str(), dllPath.c_str())) {
+                    DWORD tID;
+                    HANDLE t1 = CreateThread(
+                        0,
+                        0,
+                        (LPTHREAD_START_ROUTINE)pipeHandler,
+                        0,
+                        0,
+                        &tID
+                    );
+
+                    // Create pipe and connect to client
+                    pipeToDLL.createPipe();
+                    isPipeToDLLConnected = pipeToDLL.waitForClient();
+                    // Send blocked headers
+                    for (int i = 0; i < blockedHeaders.size(); i++) {
+                        WORD wordValue = blockedHeaders.at(i);
+                        pipeMessage message;
+                        Header h;
+                        h.action = 1;
+                        h.header = wordValue;
+                        message.id = bHeader;
+                        message.data = (void*)&h;
+                        pipeToDLL.sendBlockHeaderMessage(message);
+                    }
+                    return true;
+                }
+                else {
+                    std::cout << "Failed injecting DLL" << std::endl;
+                    return false;
+                }
+            }
+            break;
         }
     }
     break;
@@ -629,6 +665,10 @@ void addControls(HWND parentHWND)
     lvPacketsData->add_column(102, L"Type");
     lvPacketsData->add_column(500, L"Data");
 
+    CreateWindow(L"static", L"Auto Inject ", WS_VISIBLE | WS_CHILD, 980, 670, 110, 25, parentHWND, NULL, NULL, NULL);
+    autoInject = new Control(parentHWND, 1055, 665, 110, 25, autoInjectID, L"button", L"", WS_VISIBLE | WS_CHILD | BS_AUTOCHECKBOX);
+    
+    injectButton = new Control(parentHWND, 980, 690, 100, 50, injectButtonID, L"button", L"Inject");
     launchButton = new Control(parentHWND, 1080, 690, 100, 50, launchButtonID, L"button", L"Launch");
 
     lvPacketsDataToolTip = new Control(parentHWND, 0, 0, 0, 0, NULL, TOOLTIPS_CLASSW, NULL, WS_POPUP | TTS_ALWAYSTIP);
@@ -642,6 +682,7 @@ void addSettingsControl(HWND hwnd)
     dllPathTextBox = new Control(hwnd, 130, 40, 250, 25, dllPathTextBoxID, L"edit", dllPath.c_str(), ES_READONLY | WS_BORDER | WS_CHILD | WS_VISIBLE);
     maplestoryPathButton = new Control(hwnd, 380, 10, 25, 25, maplestoryPathButtonID, L"Button", L"...");
     dllPathButton = new Control(hwnd, 380, 40, 25, 25, dllPathButtonID, L"Button", L"...");
+    
 
 }
 void addMenus(HWND parenthWnd)
