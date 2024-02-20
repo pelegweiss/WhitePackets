@@ -561,6 +561,7 @@ void __declspec(naked) my_decodeBuffer()
 	 Hook * Decode4Hook = new Hook((BYTE*)CInPacket_Decode4Address, (BYTE*)&my_decode4, 7);
 	 Hook * DecodeStringHook = new Hook((BYTE*)CInPacket_DecodeStrAddress, (BYTE*)&my_decodeStr, 7);
 	 Hook * DecodeBufferHook = new Hook((BYTE*)CInPacket_DecodeBufferAddress, (BYTE*)&my_decodeBuffer, 6);
+	 
 	 sendPacketHook->Enable();
 	 CoutPacketHook->Enable();
 	 Encode1Hook->Enable();
