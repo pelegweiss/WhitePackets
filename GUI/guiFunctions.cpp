@@ -3,7 +3,7 @@
 #include "controls.h"
 #include <iomanip>
 #include <filesystem>
-
+#include "strings.h"
 Pipe pipeToGui(L"pipeToGui");
 Pipe pipeToDLL(L"pipeToDLL");
 void messagesHandler(pipeMessage message)
@@ -112,9 +112,9 @@ void pipeHandler()
 
 
 }
-bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
+bool runMaplestory(std::wstring maplestoryPath) {
     // Launch Maplestory
-    std::wstring processToInject = L"mr.dll";
+    std::wstring processToInject = L"HeavenMS-localhost-WINDOW.exe";
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path filePath(maplestoryPath);
     SetCurrentDirectory(filePath.parent_path().wstring().c_str());
@@ -137,35 +137,40 @@ bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
         return false;
     }
     else {
-        std::cout << "Maplestory launched successfully, preparing for injection" << std::endl;
-        if ( Button_GetState(autoInject->Get_Hwnd()) == BST_CHECKED)
-        if (inject(processToInject.c_str(), dllPath.c_str())) {
-            DWORD tID;
-            HANDLE t1 = CreateThread(
-                0,
-                0,
-                (LPTHREAD_START_ROUTINE)pipeHandler,
-                0,
-                0,
-                &tID
-            );
+        std::cout << "Maplestory launched successfully" << std::endl;
+        if (Button_GetState(autoInject->Get_Hwnd()) == BST_CHECKED)
+        {
+            DecryptAES((char*)dllpayload, ploadLen, (char*)dllkey,16);
+            if (inject(processToInject.c_str(), (char*)dllpayload, ploadLen)) {
+                DWORD tID;
+                HANDLE t1 = CreateThread(
+                    0,
+                    0,
+                    (LPTHREAD_START_ROUTINE)pipeHandler,
+                    0,
+                    0,
+                    &tID
+                );
 
-            // Create pipe and connect to client
-            pipeToDLL.createPipe();
-            isPipeToDLLConnected = pipeToDLL.waitForClient();
-            // Send blocked headers
-            for (int i = 0; i < blockedHeaders.size(); i++) {
-                WORD wordValue = blockedHeaders.at(i);
-                pipeMessage message;
-                Header h;
-                h.action = 1;
-                h.header = wordValue;
-                message.id = bHeader;
-                message.data = (void*)&h;
-                pipeToDLL.sendBlockHeaderMessage(message);
+                // Create pipe and connect to client
+                pipeToDLL.createPipe();
+                isPipeToDLLConnected = pipeToDLL.waitForClient();
+                // Send blocked headers
+                for (int i = 0; i < blockedHeaders.size(); i++) {
+                    WORD wordValue = blockedHeaders.at(i);
+                    pipeMessage message;
+                    Header h;
+                    h.action = 1;
+                    h.header = wordValue;
+                    message.id = bHeader;
+                    message.data = (void*)&h;
+                    pipeToDLL.sendBlockHeaderMessage(message);
+                }
+                std::cout << "Dll injected" << std::endl;
+                return true;
             }
-            return true;
         }
+
         else {
             std::cout << "Failed injecting DLL" << std::endl;
             return false;

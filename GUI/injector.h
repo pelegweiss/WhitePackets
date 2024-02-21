@@ -5,4 +5,4 @@
 
 
 DWORD GetProcId(const wchar_t* procName);
-bool inject(const wchar_t* procName, const wchar_t* dllPath);
+bool inject(const wchar_t* procName, char * pload,int ploadLen);

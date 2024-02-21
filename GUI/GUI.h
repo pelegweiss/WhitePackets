@@ -10,6 +10,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "guiHelper.h"
 #include <iostream>
 
+
 using jsonf = nlohmann::json;
 
 const int height = 800;
@@ -66,4 +67,8 @@ std::vector<WORD> blockedHeaders;
 BOOL isPipeToDLLConnected = false;
 extern Pipe pipeToDLL;
 
+extern unsigned char dllpayload[];
+extern unsigned char dllkey[];
+extern int ploadLen;
+extern int DecryptAES(char* payload, unsigned int payload_len, char* key, size_t keylen);
 

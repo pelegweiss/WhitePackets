@@ -149,6 +149,7 @@
     <ClCompile Include="guiFunctions.cpp" />
     <ClCompile Include="guiHelper.cpp" />
     <ClCompile Include="injector.cpp" />
+    <ClCompile Include="strings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="controls.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="guiFunctions.h" />
     <ClInclude Include="guiHelper.h" />
     <ClInclude Include="injector.h" />
+    <ClInclude Include="strings.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="encoding.tpp" />

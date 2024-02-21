@@ -25,6 +25,9 @@
     <Filter Include="encoding">
       <UniqueIdentifier>{b1900738-d48d-450a-9e00-208c45887df5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="strings">
+      <UniqueIdentifier>{2469c709-5dfb-4b31-8056-02e089c8da7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp">
@@ -45,6 +48,9 @@
     <ClCompile Include="guiHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="strings.cpp">
+      <Filter>strings</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -64,6 +70,9 @@
     </ClInclude>
     <ClInclude Include="guiHelper.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="strings.h">
+      <Filter>strings</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

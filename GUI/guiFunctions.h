@@ -7,7 +7,7 @@
 #include "encoding.h"
 #include "controls.h"
 #include <windowsx.h>
-bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath);
+bool runMaplestory(std::wstring maplestoryPath);
 
 extern bool sniff;
 extern ListView * lvPackets;

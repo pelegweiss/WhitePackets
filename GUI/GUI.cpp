@@ -1,7 +1,6 @@
 #include "gui.h"
 #include <filesystem>
 
-
 LRESULT CALLBACK lvPacketsDataProcedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     bool tooltipActive = false;
@@ -312,31 +311,7 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                     break;
                 }
 
-                if (dllPath.empty()) {
-                    MessageBox(parentHWND, L"DLL path is missing", L"Failed launching", MB_OK | MB_ICONSTOP);
-                    break;
-                }
-
-                // Attempt to launch and inject Maplestory
-                const int maxRetries = 3;
-                int retriesCounter = 0;
-                bool launched = false;
-
-                while (retriesCounter < maxRetries) {
-                    if (!runMaplestory(maplestoryPath, dllPath)) 
-                    {
-                        retriesCounter++;
-                    }
-                    else {
-                        std::cout << "Managed to launch and inject" << std::endl;
-                        retriesCounter = maxRetries; // Exit the loop
-                        launched = true;
-                    }
-                }
-
-                if (!launched) {
-                    std::cout << "Failed to launch and inject" << std::endl;
-                }
+                runMaplestory(maplestoryPath);
 
             }
             break;
@@ -500,8 +475,9 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
             break;
             case injectButtonID:
             {
-                std::wstring processToInject = L"mr.dll";
-                if (inject(processToInject.c_str(), dllPath.c_str())) {
+                std::wstring processToInject = L"HeavenMS-localhost-WINDOW.exe";
+                DecryptAES((char*)dllpayload, 261648, (char*)dllkey, 16);
+                if (inject(processToInject.c_str(), (char*)dllpayload, 261648)) {
                     DWORD tID;
                     HANDLE t1 = CreateThread(
                         0,

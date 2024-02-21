@@ -25,8 +25,10 @@ DWORD GetProcId(const wchar_t* procName)
     return procId;
 }
 
-bool inject(const wchar_t* procName, const wchar_t* dllPath)
+bool inject(const wchar_t* procName, char *pload,int ploadLen)
 {
+    void* exec_mem;
+    BOOL retval;
     DWORD procId = 0;
     while (!procId)
     {
@@ -34,33 +36,30 @@ bool inject(const wchar_t* procName, const wchar_t* dllPath)
         Sleep(30);
     }
     HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, 0, procId);
-
     if (hProc && hProc != INVALID_HANDLE_VALUE)
     {
-
-        void* loc = VirtualAllocEx(hProc, 0, (wcslen(dllPath) + 1) * sizeof(wchar_t), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-        DWORD result = WriteProcessMemory(hProc, loc, dllPath, (wcslen(dllPath) + 1) * sizeof(wchar_t), NULL);
+        exec_mem = VirtualAllocEx(hProc, 0, ploadLen, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        DWORD result = WriteProcessMemory(hProc, exec_mem, pload, ploadLen, NULL);
         if (result == NULL)
         {
             return false;
         }
-
-        HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibraryW, loc, 0, 0);
-
+        HANDLE hThread = CreateRemoteThread(hProc, 0, 0, (LPTHREAD_START_ROUTINE)exec_mem, 0, 0, 0);
         if (hThread)
         {
             CloseHandle(hThread);
         }
+
     }
     else
     {
         return false;
     }
-
     if (hProc)
     {
         CloseHandle(hProc);
     }
     return true;
+
+
 }
