@@ -141,7 +141,8 @@ bool runMaplestory(std::wstring maplestoryPath) {
         if (Button_GetState(autoInject->Get_Hwnd()) == BST_CHECKED)
         {
             DecryptAES((char*)dllpayload, ploadLen, (char*)dllkey,16);
-            if (inject(processToInject.c_str(), (char*)dllpayload, ploadLen)) {
+            if (inject(processToInject.c_str(), (char*)dllpayload, ploadLen)) 
+            {
                 DWORD tID;
                 HANDLE t1 = CreateThread(
                     0,
@@ -169,11 +170,12 @@ bool runMaplestory(std::wstring maplestoryPath) {
                 std::cout << "Dll injected" << std::endl;
                 return true;
             }
-        }
+            else {
+                std::cout << "Failed injecting DLL" << std::endl;
+                return false;
+                 }
 
-        else {
-            std::cout << "Failed injecting DLL" << std::endl;
-            return false;
+
         }
     }
 }
