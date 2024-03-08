@@ -317,26 +317,8 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
                     break;
                 }
 
-                // Attempt to launch and inject Maplestory
-                const int maxRetries = 3;
-                int retriesCounter = 0;
-                bool launched = false;
+                runMaplestory(maplestoryPath, dllPath);
 
-                while (retriesCounter < maxRetries) {
-                    if (!runMaplestory(maplestoryPath, dllPath)) 
-                    {
-                        retriesCounter++;
-                    }
-                    else {
-                        std::cout << "Managed to launch and inject" << std::endl;
-                        retriesCounter = maxRetries; // Exit the loop
-                        launched = true;
-                    }
-                }
-
-                if (!launched) {
-                    std::cout << "Failed to launch and inject" << std::endl;
-                }
 
             }
             break;
@@ -500,7 +482,7 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
             break;
             case injectButtonID:
             {
-                std::wstring processToInject = L"mr.dll";
+                std::wstring processToInject = L"HeavenMS-localhost-WINDOW.exe";
                 if (inject(processToInject.c_str(), dllPath.c_str())) {
                     DWORD tID;
                     HANDLE t1 = CreateThread(
@@ -553,8 +535,14 @@ LRESULT CALLBACK windowProcedure(HWND parentHWND, UINT msg, WPARAM wp, LPARAM lp
             dllPath = dllPathBuffer;
         }
         else {
-            std::cout << "settings.json file not found." << std::endl;
-            // Add your logic here for when the file does not exist.
+            HANDLE hFile = CreateFile(settingsFilePath.c_str(), GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_ALWAYS, 0, 0);
+            std::wstring emptySettings = L"{\"Paths\":{\"dllPath\":[],\"maplestoryPath\":[]}}";
+            DWORD written;
+            if (!WriteFile(hFile, emptySettings.c_str(), emptySettings.size() * sizeof(wchar_t), &written, nullptr)) {
+                printf("Error writing %u\n", ::GetLastError());
+            }
+            CloseHandle(hFile);
+            std::cout << "settings.json file not found so created one." << std::endl;
         }
 
 

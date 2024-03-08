@@ -114,7 +114,7 @@ void pipeHandler()
 }
 bool runMaplestory(std::wstring maplestoryPath, std::wstring dllPath) {
     // Launch Maplestory
-    std::wstring processToInject = L"mr.dll";
+    std::wstring processToInject = L"HeavenMS-localhost-WINDOW.exe";
     std::filesystem::path currentPath = std::filesystem::current_path();
     std::filesystem::path filePath(maplestoryPath);
     SetCurrentDirectory(filePath.parent_path().wstring().c_str());
